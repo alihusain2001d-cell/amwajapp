@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "680328798771",
+    "project_id": "amwaj-electronics",
+    "storage_bucket": "amwaj-electronics.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:680328798771:android:44ab8f7b8360e54bb2b946",
+        "android_client_info": {
+          "package_name": "com.amwajmob.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdSbo06nkTZFYFtnk3Om4Q0spiAxzy9nU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

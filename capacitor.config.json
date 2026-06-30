@@ -1,0 +1,15 @@
+{
+  "appId": "com.amwajmob.app",
+  "appName": "أمواج للإلكترونيات",
+  "webDir": "www",
+  "plugins": {
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#0284C7",
+      "overlaysWebView": false
+    }
+  },
+  "android": {
+    "backgroundColor": "#0284C7"
+  }
+}
