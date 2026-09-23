@@ -6,9 +6,20 @@
 #
 #   ⚠️ كاباسيتور ٨ يستعمل Swift Package Manager مو CocoaPods.
 #      يعني ماكو Podfile ولا App.xcworkspace بالمشروع أصلاً —
-#      نبني ملف المشروع (.xcodeproj) مباشرة. النسخة القديمة من
-#      هذا الملف كانت تدوّر على workspace وتشغّل pod install،
-#      وتفشل من أول خطوة.
+#      نبني ملف المشروع (.xcodeproj) مباشرة.
+#
+#   🔏 التوقيع أوتوماتيكي بالكامل:
+#      Codemagic يسوي شهادة التوزيع وملف التعريف (provisioning
+#      profile) عند أبل لحاله، من مفتاحين:
+#        • مفتاح API (CodemagicAmwajKey) — محفوظ بإعدادات Codemagic
+#        • مفتاح الشهادة (CERTIFICATE_PRIVATE_KEY) — بمجموعة
+#          code-signing بإعدادات التطبيق
+#      يعني ماكو شي ينسوّى بيد بموقع أبل.
+#
+#      ⚠️ مفتاح الشهادة لازم يبقى **نفسه** بكل بناء — به يلگي
+#         Codemagic الشهادة الي سواها أول مرة. لو انبدّل يسوي
+#         شهادة جديدة، وأبل تسمح بعدد محدود. النسخة الأصلية
+#         محفوظة بفولدر «مفاتيح تطبيق ابل مهم».
 # ═══════════════════════════════════════════════════════════════
 
 workflows:
@@ -18,15 +29,15 @@ workflows:
     instance_type: mac_mini_m2
 
     integrations:
-      # الاسم هذا لازم يطابق اسم المفتاح اللي تحطه بإعدادات Codemagic
-      # (Teams ← Integrations ← App Store Connect)
+      # الاسم هذا لازم يطابق اسم المفتاح بإعدادات Codemagic
+      # (Personal Account ← Settings ← Integrations ← Developer Portal)
       app_store_connect: CodemagicAmwajKey
 
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.amwajmob.app
+      groups:
+        - code-signing          # بيها CERTIFICATE_PRIVATE_KEY
       vars:
+        BUNDLE_ID: "com.amwajmob.app"
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
         # رقم التطبيق من App Store Connect (App Information ← Apple ID).
@@ -45,7 +56,23 @@ workflows:
         script: |
           npx cap sync ios
 
-      - name: ربط شهادات التوقيع بالمشروع
+      - name: تجهيز سلسلة المفاتيح
+        script: |
+          keychain initialize
+
+      - name: جلب أو إنشاء شهادة التوقيع وملف التعريف
+        # --create: إذا ماكو شهادة أو ملف تعريف عند أبل، يسويهن.
+        # بالبناءات الجاية يلگي نفسهن ويستعملهن.
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+
+      - name: إضافة الشهادة لسلسلة المفاتيح
+        script: |
+          keychain add-certificates
+
+      - name: ربط التوقيع بمشروع Xcode
         script: |
           xcode-project use-profiles
 
