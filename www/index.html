@@ -7333,6 +7333,16 @@ function clearAllNotifications() {
 // ════════════════════════════════════════════
 // 📱 يرجع رقم الهاتف المعروف حالياً — يفضّل amwaj_user (بعد تسجيل الدخول)، وإلا amwaj_phone (زبون قيد المراجعة لسا ما سجل دخول)
 // حتى تتربط التوكن برقمه من وقت التسجيل، مو بس بعد الموافقة — عشان إشعار "تمت الموافقة" يوصله فعلياً
+/* 📱 نوع الجهاز للسيرفر — ios / android / web.
+   السيرفر يدز للآيفون مباشرة لأبل، وللأندرويد والمتصفح عن طريق فايربيس،
+   فلازم يعرف الفرق. كان مكتوب 'android' ثابت بثلاث أماكن. */
+function _pushPlatform() {
+  try {
+    var p = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform();
+    if (p === 'ios' || p === 'android') return p;
+  } catch (e) {}
+  return window.Capacitor ? 'android' : 'web';
+}
 function _getKnownPhone() {
   const user = JSON.parse(localStorage.getItem('amwaj_user') || 'null');
   return (user && user.phone) || localStorage.getItem('amwaj_phone') || '';
@@ -7343,7 +7353,7 @@ async function _syncFcmTokenToPhone(phone) {
   const existingToken = localStorage.getItem('amwaj_fcm_token');
   if (!existingToken) return;
   try {
-    await sbRpc('app_register_token', { p_token: existingToken, p_customer_token: getCustomerToken(), p_platform: 'android' });
+    await sbRpc('app_register_token', { p_token: existingToken, p_customer_token: getCustomerToken(), p_platform: _pushPlatform() });
     console.log('✅ FCM Token linked to phone:', phone);
   } catch(e) { console.error('❌ FCM token link failed:', e); }
 }
@@ -7422,7 +7432,7 @@ async function setupPushNotifications() {
         await sbRpc('app_register_token', {
           p_token: token.value,
           p_customer_token: getCustomerToken(),
-          p_platform: 'android'
+          p_platform: _pushPlatform()
         });
         console.log('✅ FCM Token sent to server');
       } catch(e) {
@@ -8213,7 +8223,7 @@ async function updateFcmTokenAfterLogin() {
       await sbRpc('app_register_token', {
         p_token: existingToken,
         p_customer_token: getCustomerToken(),
-        p_platform: (window.Capacitor ? 'android' : 'web')
+        p_platform: _pushPlatform()
       });
       console.log('✅ FCM Token updated with phone:', user.phone);
     } catch(e) {

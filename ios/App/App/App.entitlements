@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  صلاحيات التطبيق عند أبل.
+
+  aps-environment = الإشعارات. «production» مو «development» لأن كل بناءاتنا
+  (TestFlight والمتجر) موقّعة بملف تعريف App Store، وهذا يسمح بـproduction
+  بس — لو كتبنا development التوقيع يفشل بـ«doesn't match the entitlements».
+  ولازم Push Notifications مفعّلة على com.amwajmob.app بموقع أبل (مفعّلة).
+-->
+<plist version="1.0">
+<dict>
+	<key>aps-environment</key>
+	<string>production</string>
+</dict>
+</plist>
