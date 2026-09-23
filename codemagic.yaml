@@ -1,48 +1,90 @@
-﻿workflows:
+﻿# ═══════════════════════════════════════════════════════════════
+#   بناء تطبيق أمواج للآيفون — على ماك بالسحابة
+#
+#   ليش Codemagic: بناء iOS يحتاج ماك حقيقي وXcode. علي بويندوز،
+#   فهذا الملف يأجّر ماك، يبني، ويرفع لـTestFlight لحاله.
+#
+#   ⚠️ كاباسيتور ٨ يستعمل Swift Package Manager مو CocoaPods.
+#      يعني ماكو Podfile ولا App.xcworkspace بالمشروع أصلاً —
+#      نبني ملف المشروع (.xcodeproj) مباشرة. النسخة القديمة من
+#      هذا الملف كانت تدوّر على workspace وتشغّل pod install،
+#      وتفشل من أول خطوة.
+# ═══════════════════════════════════════════════════════════════
+
+workflows:
   ios-amwaj-workflow:
     name: Amwaj iOS Workflow
     max_build_duration: 120
     instance_type: mac_mini_m2
+
     integrations:
+      # الاسم هذا لازم يطابق اسم المفتاح اللي تحطه بإعدادات Codemagic
+      # (Teams ← Integrations ← App Store Connect)
       app_store_connect: CodemagicAmwajKey
+
     environment:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.amwajmob.app
       vars:
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
-        APP_STORE_APP_ID: PLACEHOLDER_APP_ID
+        # رقم التطبيق من App Store Connect (App Information ← Apple ID).
+        # خلّيه فاضي لأول بناء — ما راح يرفع لـTestFlight، بس يبني
+        # ويعطيك ملف ipa تتأكد إن كلشي تمام.
+        APP_STORE_APP_ID: ""
       node: 20.14.0
       xcode: 16.0
-      cocoapods: default
+
     scripts:
-      - name: Install npm dependencies
+      - name: تنصيب الحزم
         script: |
-          npm install
-      - name: Sync Capacitor and copy web assets
+          npm ci || npm install
+
+      - name: نسخ ملفات الموقع ومزامنة كاباسيتور
         script: |
           npx cap sync ios
-      - name: Cocoapods installation
-        script: |
-          cd ios/App && pod install
-      - name: Set up code signing settings on Xcode project
+
+      - name: ربط شهادات التوقيع بالمشروع
         script: |
           xcode-project use-profiles
-      - name: Increment build number
+
+      - name: رقم البناء
+        # كل رفعة لأبل لازم رقم بناء أكبر من اللي قبله.
+        # لو عدنا رقم التطبيق ناخذ آخر رقم من أبل ونزيد واحد،
+        # وإلا ناخذ رقم البناء مال Codemagic — وهو يزيد لحاله.
         script: |
-          cd $CM_BUILD_DIR/ios/App
-          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APP_ID")
-          agvtool new-version -all $(($LATEST_BUILD_NUMBER + 1))
-      - name: Build ipa for distribution
+          cd "$CM_BUILD_DIR/ios/App"
+          if [ -n "$APP_STORE_APP_ID" ]; then
+            LATEST=$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APP_ID" || echo 0)
+            NEXT=$((LATEST + 1))
+          else
+            NEXT="$PROJECT_BUILD_NUMBER"
+          fi
+          echo "رقم البناء: $NEXT"
+          agvtool new-version -all "$NEXT"
+
+      - name: بناء ملف ipa
         script: |
           xcode-project build-ipa \
-            --workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
+            --project "$CM_BUILD_DIR/$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
+
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+
     publishing:
+      email:
+        recipients:
+          - alihusain.2001.d@gmail.com
+        notify:
+          success: true
+          failure: true
+
       app_store_connect:
         auth: integration
-        submit_to_testflight: true
+        # ⚠️ الرفع مطفّي لأول بناء عمداً — لين تتأكد إن البناء نفسه
+        #    ناجح. خلّيه true بعد ما يطلع أول ipa سليم، وبعدها كل
+        #    بناء يروح لـTestFlight لحاله.
+        submit_to_testflight: false

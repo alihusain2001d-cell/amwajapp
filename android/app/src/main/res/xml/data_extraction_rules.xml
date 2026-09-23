@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  نقل البيانات مقابل النسخ الاحتياطي — أندرويد ١٢ فما فوق
+
+  المشكلة الي كانت: allowBackup="false" حمت رمز تسجيل الدخول من
+  إنه يطلع لسحابة كوكل، بس عطّلت وياها نقل البيانات بين جهازين —
+  فالزبون يبدّل موبايله ويفقد دخوله ويحتاج رمز جديد.
+
+  هنا نفصلهن:
+    • نقل مباشر جهاز ← جهاز  : مسموح (الرمز ما يطلع برّا أصلاً)
+    • نسخة احتياطية بالسحابة  : ممنوعة تماماً
+-->
+<data-extraction-rules>
+
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </cloud-backup>
+
+    <device-transfer>
+        <include domain="root" path="." />
+    </device-transfer>
+
+</data-extraction-rules>

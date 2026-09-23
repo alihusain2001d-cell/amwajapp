@@ -1,21 +1,39 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
+# ══════════════════════════════════════════════════════════════
+#   قواعد R8 — أمواج
 #
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+#   R8 يشيل أي كلاس ما يشوف أحد ينديه من الكود. بس كابستور
+#   يلگي إضافاته **بالانعكاس** من أسمائها وقت التشغيل — يعني
+#   R8 ما يشوف أي نداء إلها فيشيلها، والتطبيق ينهار بصمت.
+#   فنكولّه صراحة: هذي لا تلمسها.
+# ══════════════════════════════════════════════════════════════
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# ── التعليقات التوضيحية: كابستور يقراها وقت التشغيل ──
+-keepattributes *Annotation*, InnerClasses, Signature, Exceptions
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# ── كابستور نفسه وكل إضافاته ──
+-keep class com.getcapacitor.** { *; }
+-keep @com.getcapacitor.annotation.CapacitorPlugin class * { *; }
+-keep class * extends com.getcapacitor.Plugin { *; }
+-keepclassmembers class * extends com.getcapacitor.Plugin {
+  @com.getcapacitor.PluginMethod public <methods>;
+}
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# ── كوردوفا: كابستور يشغّل إضافاتها بنفس الأسلوب ──
+-keep class org.apache.cordova.** { *; }
+-dontwarn org.apache.cordova.**
+
+# ── فايربيس والإشعارات ──
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.firebase.**
+-dontwarn com.google.android.gms.**
+
+# ── الجسر بين الويب فيو وجافا: الدوال تنندى بالاسم من الجافاسكربت ──
+-keepclassmembers class * {
+  @android.webkit.JavascriptInterface <methods>;
+}
+
+# ── نبقي أسماء الملفات وأرقام الأسطر، وإلا تقارير الأعطال بPlay
+#    تجي مشفّرة وما نگدر نقراها ──
+-keepattributes SourceFile, LineNumberTable
+-renamesourcefileattribute SourceFile

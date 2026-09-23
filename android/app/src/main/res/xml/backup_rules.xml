@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  أندرويد ١١ فما دون — هذي النسخ ما تعرف تفرّق بين النقل والسحابة.
+  فنمنع كلشي، مثل ما كان الحال قبل. الأجهزة الجديدة تاخذ الملف الثاني.
+-->
+<full-backup-content>
+    <exclude domain="root" path="." />
+</full-backup-content>

@@ -8,3 +8,8 @@ ios/App/Pods/
 ios/App/build/
 ios/DerivedData/
 .vscode/
+
+# Sensitive files
+android/app/amwaj-release.keystore
+android/keystore.properties
+android/app/google-services.json
