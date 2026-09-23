@@ -1,5 +1,6 @@
 import UIKit
 import Capacitor
+import WebKit   // allowsBackForwardNavigationGestures تحت
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -46,4 +47,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
     }
 
+}
+
+/* 🔙 سحبة الرجوع من حافة الشاشة.
+
+   الويب فيو بالآيفون يجي بيها مطفّية، فالسحب من اليسار ما يسوي شي.
+   هنا نشغّلها: السحبة ترجع خطوة بتاريخ الصفحة، والصفحة نفسها
+   (_navEnsure / popstate بالـindex.html) تسكّر آخر نافذة مفتوحة.
+   بالرئيسية ماكو خطوة محجوزة، فالسحبة ما تسوي شي — ما تطلّعك.
+
+   مكتوبة بنفس ملف AppDelegate عمداً: ملف swift جديد لازم ينسجّل
+   بملف المشروع project.pbxproj بيد، وهذا يلخبط بسهولة. وتنربط
+   بالشاشة من Main.storyboard (customClass = AmwajViewController). */
+class AmwajViewController: CAPBridgeViewController {
+    override func capacitorDidLoad() {
+        super.capacitorDidLoad()
+        webView?.allowsBackForwardNavigationGestures = true
+    }
 }

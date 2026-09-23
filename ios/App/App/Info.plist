@@ -7,7 +7,10 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>امواج للالكترونيات</string>
+        <!-- قصير عمداً: الآيفون يعرض ~١٢ حرف تحت الأيقونة، والاسم الكامل
+             ينقص «امواج للالكترونيا...». الاسم الكامل بالآب ستور ينكتب
+             بـApp Store Connect، مو من هنا. -->
+        <string>امواج</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
