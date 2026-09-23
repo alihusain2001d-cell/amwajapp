@@ -8908,6 +8908,18 @@ function _isNewerVersion(latest, current) {
 // 📲 نسخة التطبيق — من لوحة التحكم الجديدة (تبويب التنبيهات والدوام)
 async function checkAppUpdate() {
   if (!_isNativeApp) return; // الموقع دايماً آخر نسخة، هذا للتطبيق المثبّت بس
+
+  /* 🍎 الآيفون ما يشوف التحديث الإجباري.
+     رقم النسخة باللوحة واحد للنظامين، ورابطه لبلي ستور. لو اشتغل
+     هنا، أول ما تطلع نسخة أندرويد وينرفع الرقم، زبون الآيفون يطلعله
+     تحديث إجباري **بلا زر لاحقاً** يودّيه لمتجر ما يفتح بجهازه —
+     ينقفل برّا التطبيق لين تعدّي نسخة الآيفون مراجعة أبل.
+     الآيفون يتحدّث من الآب ستور لحاله.
+     لو احتجناه بالمستقبل: رقم ورابط منفصلين للآيفون باللوحة. */
+  var _plat = (window.Capacitor && window.Capacitor.getPlatform)
+                ? window.Capacitor.getPlatform() : '';
+  if (_plat === 'ios' || (!_plat && _isIos)) return;
+
   try {
     var v = APP_VER_INFO;
     if (!v) { var r = await sbRpc('app_catalog'); v = APP_VER_INFO = (r && r.ver) || null; }

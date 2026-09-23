@@ -40,9 +40,9 @@ workflows:
         BUNDLE_ID: "com.amwajmob.app"
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
-        # APP_STORE_APP_ID — رقم التطبيق من App Store Connect
-        # (App Information ← Apple ID). ينضاف هنا بعد أول بناء ناجح.
-        # ⚠️ لا تحطه فاضي "" — Codemagic يرفض الملف كله.
+        # رقم التطبيق من App Store Connect (App Information ← Apple ID).
+        # ⚠️ لا تحطه فاضي "" أبداً — Codemagic يرفض الملف كله.
+        APP_STORE_APP_ID: "6815197745"
       # ⚠️ كاباسيتور ٨ يطلب Node 22 أو أحدث — بـ20 يفشل «cap sync».
       node: lts
       # آخر نسخة ثابتة — أبل ترفض الرفع بنسخ Xcode قديمة كل سنة.
@@ -84,7 +84,14 @@ workflows:
         script: |
           cd "$CM_BUILD_DIR/ios/App"
           if [ -n "${APP_STORE_APP_ID:-}" ]; then
-            LATEST=$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APP_ID" || echo 0)
+            # الأعلى من TestFlight والمتجر — كل رفعة تظهر بـTestFlight،
+            # والمتجر لحاله ما يشوف البناءات الي ما انقدّمت للمراجعة.
+            # تطبيق جديد ماكو بيه بناءات فالأمر يفشل ← نعتبره صفر.
+            TF=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APP_ID" 2>/dev/null | tail -1)
+            AS=$(app-store-connect get-latest-app-store-build-number  "$APP_STORE_APP_ID" 2>/dev/null | tail -1)
+            TF=${TF//[^0-9]/}; AS=${AS//[^0-9]/}
+            TF=${TF:-0};       AS=${AS:-0}
+            LATEST=$(( TF > AS ? TF : AS ))
             NEXT=$((LATEST + 1))
           else
             NEXT="$PROJECT_BUILD_NUMBER"
@@ -110,12 +117,12 @@ workflows:
           success: true
           failure: true
 
-      # ⚠️ الرفع لأبل مشال لأول بناء عمداً.
-      #    قسم app_store_connect يرفع الـipa **حتى لو TestFlight مطفّي**،
-      #    والرفع يفشل لين تنسوّى بطاقة التطبيق بـApp Store Connect —
-      #    فأول بناء ناجح كان راح يطلع «فشل». بعد ما تنسوّى البطاقة
-      #    رجّع هذا القسم:
-      #
-      #      app_store_connect:
-      #        auth: integration
-      #        submit_to_testflight: true
+      # يرفع الـipa لـApp Store Connect بعد كل بناء ناجح.
+      # بعد ما أبل تعالجه (١٠-٣٠ دقيقة) يطلع بـTestFlight، والمختبرين
+      # الداخليين (مستخدمين App Store Connect) ينصّبوه فوراً.
+      app_store_connect:
+        auth: integration
+        # false مقصود: true يقدّمه لمراجعة «المختبرين الخارجيين» عند
+        # أبل، وهاي تحتاج معلومات اختبار ما عبّيناها بعد فتفشل.
+        # الداخليين ما يحتاجون مراجعة أصلاً.
+        submit_to_testflight: false

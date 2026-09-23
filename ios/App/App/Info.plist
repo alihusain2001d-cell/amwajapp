@@ -24,6 +24,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>NSCameraUsageDescription</key>
 	<string>نحتاج الكاميرا حتى تقرا رمز QR الموجود على ملصق الضمان، فتنمليّ بيانات الضمان لحالها بدل ما تكتبها بيدك.</string>
+	<!-- التطبيق يستعمل HTTPS بس (مُعفى). بدون هذا السطر أبل توقف كل بناء
+	     بـTestFlight على «Missing Compliance» لين تجاوب بيدك. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
