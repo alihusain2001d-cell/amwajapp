@@ -40,12 +40,13 @@ workflows:
         BUNDLE_ID: "com.amwajmob.app"
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
-        # رقم التطبيق من App Store Connect (App Information ← Apple ID).
-        # خلّيه فاضي لأول بناء — ما راح يرفع لـTestFlight، بس يبني
-        # ويعطيك ملف ipa تتأكد إن كلشي تمام.
-        APP_STORE_APP_ID: ""
-      node: 20.14.0
-      xcode: 16.0
+        # APP_STORE_APP_ID — رقم التطبيق من App Store Connect
+        # (App Information ← Apple ID). ينضاف هنا بعد أول بناء ناجح.
+        # ⚠️ لا تحطه فاضي "" — Codemagic يرفض الملف كله.
+      # ⚠️ كاباسيتور ٨ يطلب Node 22 أو أحدث — بـ20 يفشل «cap sync».
+      node: lts
+      # آخر نسخة ثابتة — أبل ترفض الرفع بنسخ Xcode قديمة كل سنة.
+      xcode: latest
 
     scripts:
       - name: تنصيب الحزم
@@ -82,7 +83,7 @@ workflows:
         # وإلا ناخذ رقم البناء مال Codemagic — وهو يزيد لحاله.
         script: |
           cd "$CM_BUILD_DIR/ios/App"
-          if [ -n "$APP_STORE_APP_ID" ]; then
+          if [ -n "${APP_STORE_APP_ID:-}" ]; then
             LATEST=$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APP_ID" || echo 0)
             NEXT=$((LATEST + 1))
           else
@@ -109,9 +110,12 @@ workflows:
           success: true
           failure: true
 
-      app_store_connect:
-        auth: integration
-        # ⚠️ الرفع مطفّي لأول بناء عمداً — لين تتأكد إن البناء نفسه
-        #    ناجح. خلّيه true بعد ما يطلع أول ipa سليم، وبعدها كل
-        #    بناء يروح لـTestFlight لحاله.
-        submit_to_testflight: false
+      # ⚠️ الرفع لأبل مشال لأول بناء عمداً.
+      #    قسم app_store_connect يرفع الـipa **حتى لو TestFlight مطفّي**،
+      #    والرفع يفشل لين تنسوّى بطاقة التطبيق بـApp Store Connect —
+      #    فأول بناء ناجح كان راح يطلع «فشل». بعد ما تنسوّى البطاقة
+      #    رجّع هذا القسم:
+      #
+      #      app_store_connect:
+      #        auth: integration
+      #        submit_to_testflight: true
