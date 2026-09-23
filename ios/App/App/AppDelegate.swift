@@ -49,12 +49,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
-/* 🔙 سحبة الرجوع من حافة الشاشة.
+/* 🔙 سحبة الرجوع — من حافة الشاشة **اليمين** (التطبيق عربي).
 
-   الويب فيو بالآيفون يجي بيها مطفّية، فالسحب من اليسار ما يسوي شي.
-   هنا نشغّلها: السحبة ترجع خطوة بتاريخ الصفحة، والصفحة نفسها
-   (_navEnsure / popstate بالـindex.html) تسكّر آخر نافذة مفتوحة.
-   بالرئيسية ماكو خطوة محجوزة، فالسحبة ما تسوي شي — ما تطلّعك.
+   ⚠️ ما نستعمل سحبة الويب فيو الجاهزة (allowsBackForwardNavigationGestures)
+      وجرّبناها أول مرة وطلعت غلط بشغلتين:
+        • تشتغل من اليسار — ما تعرف إن التطبيق عربي
+        • وقت السحب تعرض **صورة محفوظة** للصفحة السابقة، وهاي عندنا
+          الرئيسية (خطوة التاريخ وحدة لكل النوافذ المفتوحة). فمن داخل
+          شاشات براند تطلع الرئيسية، الجهاز يصفن، وبعدين تبين الماركات.
+      السحبة الجاهزة مصمّمة لمواقع كل صفحة بيها رابط، مو لتطبيق نوافذ.
+
+   بدالها سحبة خاصة: لما تخلص، ننادي history.back() — نفس الي يسويه
+   زر الرجوع بالأندرويد. الصفحة (_navEnsure / popstate بالـindex.html)
+   تسكّر آخر نافذة بحركتها الطبيعية. بالرئيسية ماكو خطوة بالتاريخ،
+   فالسحبة ما تسوي شي — ما تطلّعك.
 
    مكتوبة بنفس ملف AppDelegate عمداً: ملف swift جديد لازم ينسجّل
    بملف المشروع project.pbxproj بيد، وهذا يلخبط بسهولة. وتنربط
@@ -62,6 +70,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 class AmwajViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
         super.capacitorDidLoad()
-        webView?.allowsBackForwardNavigationGestures = true
+        guard let wv = webView else { return }
+        wv.allowsBackForwardNavigationGestures = false
+
+        let edge = UIScreenEdgePanGestureRecognizer(target: self,
+                                                    action: #selector(amwajEdgeBack(_:)))
+        edge.edges = .right
+        wv.addGestureRecognizer(edge)
+        // التمرير ينتظر السحبة تفشل أول — بدونها لمسة الحافة تروح للتمرير
+        wv.scrollView.panGestureRecognizer.require(toFail: edge)
+    }
+
+    @objc private func amwajEdgeBack(_ g: UIScreenEdgePanGestureRecognizer) {
+        guard g.state == .ended, let v = g.view else { return }
+        // من اليمين لليسار = موجب. تنحسب رجعة إذا سحب مسافة كافية أو بسرعة
+        let dx = -g.translation(in: v).x
+        let vx = -g.velocity(in: v).x
+        if dx > 60 || vx > 500 {
+            webView?.evaluateJavaScript("history.back()", completionHandler: nil)
+        }
     }
 }
