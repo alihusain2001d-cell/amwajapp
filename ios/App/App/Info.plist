@@ -25,8 +25,13 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<!-- أبل ترفض إذا الجملة ما توصف **كل** استعمالات الكاميرا. التطبيق يستعملها
+	     بمكانين: صورة المحل وقت التسجيل (capture) وقارئ QR الضمان. -->
 	<key>NSCameraUsageDescription</key>
-	<string>نحتاج الكاميرا حتى تقرا رمز QR الموجود على ملصق الضمان، فتنمليّ بيانات الضمان لحالها بدل ما تكتبها بيدك.</string>
+	<string>نستعمل الكاميرا لتصوير محلك عند التسجيل، ولقراءة رمز QR على ملصق الضمان حتى تنمليّ بياناته لحالها.</string>
+	<!-- صورة الملف الشخصي تنختار من المعرض (تبقى بالجهاز، ما تنرفع). -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>لاختيار صورة من معرضك، مثل صورة ملفك الشخصي أو صورة محلك.</string>
 	<!-- التطبيق يستعمل HTTPS بس (مُعفى). بدون هذا السطر أبل توقف كل بناء
 	     بـTestFlight على «Missing Compliance» لين تجاوب بيدك. -->
 	<key>ITSAppUsesNonExemptEncryption</key>
