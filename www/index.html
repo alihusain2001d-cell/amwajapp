@@ -8341,6 +8341,11 @@ function renderAccountSheet() {
             <div class="profile-menu-label" style="color:var(--red);">تسجيل الخروج</div>
             <span class="profile-menu-arrow">‹</span>
           </button>
+          <button class="profile-menu-item" onclick="confirmDeleteAccount()">
+            <div class="profile-menu-icon pm-icon-logout">🗑️</div>
+            <div class="profile-menu-label" style="color:var(--red);">حذف الحساب</div>
+            <span class="profile-menu-arrow">‹</span>
+          </button>
         </div>
       </div>
     `;
@@ -8416,6 +8421,31 @@ function loadStatOrdersCount() {
 function confirmLogout() {
   if (confirm('هل تريد تسجيل الخروج؟')) {
     logout();
+  }
+}
+
+/* 🗑️ حذف الحساب — أبل (القاعدة 5.1.1) وكوكل بلي يفرضون إن الزبون
+   يحذف حسابه من داخل التطبيق، وبدونها أبل ترفض التطبيق.
+   السيرفر (app_delete_me، ملف ١١١) يحذف الحساب وأجهزته. الطلبات
+   والضمانات تبقى بسجلاتنا بدون ربط بالحساب — نفس الحذف من اللوحة،
+   ومكتوب بسياسة الخصوصية. */
+async function confirmDeleteAccount() {
+  var msg = 'حذف حسابك نهائياً؟\n\n' +
+            '• ينحذف حسابك: الاسم والمحل والعنوان ورقم الهاتف\n' +
+            '• ما توصلك إشعارات بعدها\n' +
+            '• طلباتك وضماناتك السابقة تبقى بسجلاتنا للمحاسبة والضمان، بدون ربط بحسابك\n\n' +
+            'الحذف ما ينرجع. وتكدر تسجّل من جديد بأي وقت.';
+  if (!confirm(msg)) return;
+  try {
+    var r = await sbRpc('app_delete_me', { p_token: getCustomerToken() });
+    if (!r || !r.ok) throw new Error((r && r.error) || 'تعذّر الحذف');
+    alert('✅ انحذف حسابك');
+    logout();
+  } catch (e) {
+    // أخطاء الشبكة تجي إنكليزي (Failed to fetch) — نبدّلها بعربي مثل باقي التطبيق
+    var m = (e && e.message) || '';
+    if (!/[؀-ۿ]/.test(m)) m = 'تعذّر الاتصال بالسيرفر';
+    alert('❌ ' + m + ' — حاول مرة ثانية أو تواصل ويانا');
   }
 }
 
