@@ -58,6 +58,7 @@
       <button onclick="whatsappFromProducts()" title="تواصل عبر واتساب" class="header-wa-btn">💬</button>
     </div>
     <div class="bsheet-body">
+      <div class="apple-notice" style="display:none">⚠️ القطع المعروضة <b>ليست من صنع Apple</b> ولا معتمدة منها، وتركيبها قد <b>يلغي ضمان Apple</b> للجهاز. امواج مورّد قطع غيار لمحلات الصيانة، ولا تقدّم خدمة تصليح ولا تبيع أجهزة.<div dir="ltr" style="margin-top:4px;font-size:12px;opacity:.85">Parts are not made or certified by Apple. Installing them may void the Apple warranty. Amwaj supplies spare parts to repair shops; it does not offer repair services or sell devices.</div></div>
       <div class="bsheet-search-bar"><span>🔍</span><input type="text" id="sheetSearch" placeholder="ابحث عن موديل..." oninput="handleSheetSearch()"></div>
       <div id="sheetBrands" class="sheet-brands"></div>
       <div id="sheetResults"></div>
@@ -124,7 +125,7 @@
     <div class="bsheet-head">
       <button class="bsheet-close" onclick="closeSheet('ordersSheet')"></button>
       <span class="bsheet-title">📦 طلباتي</span>
-      <button onclick="whatsappFromOrders()" title="تواصل عبر واتساب" class="header-wa-btn">💬</button>
+      <button onclick="chatAboutOrder('')" title="استفسار بالدردشة" class="header-wa-btn" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark))">💬</button>
     </div>
     <div class="orders-tabs" id="ordersTabs">
       <button class="orders-tab active" data-filter="all" onclick="filterOrders('all')">الكل <span class="orders-tab-count" id="cnt-all">0</span></button>
@@ -200,6 +201,60 @@
   </div>
 </div>
 
+<!-- ═══ 📋 حركات المحفظة ═══ -->
+<div id="walletTxSheet" class="bsheet-overlay">
+  <div class="bsheet">
+    <div class="bsheet-handle"></div>
+    <div class="bsheet-head">
+      <button class="bsheet-close" onclick="closeSheet('walletTxSheet')"></button>
+      <span class="bsheet-title">📋 حركات المحفظة</span>
+      <span style="width:40px"></span>
+    </div>
+    <div class="orders-tabs" id="walletTxTabs" style="padding-top:12px">
+      <button class="orders-tab" data-r="today" onclick="walletTxFilter('today')">اليوم</button>
+      <button class="orders-tab" data-r="week" onclick="walletTxFilter('week')">أسبوع</button>
+      <button class="orders-tab active" data-r="month" onclick="walletTxFilter('month')">شهر</button>
+      <button class="orders-tab" data-r="all" onclick="walletTxFilter('all')">الكل</button>
+    </div>
+    <div class="bsheet-body" id="walletTxBody" style="padding-top:0"></div>
+  </div>
+</div>
+
+<!-- ═══ 👛 محفظتي ═══ -->
+<div id="walletSheet" class="bsheet-overlay">
+  <div class="bsheet">
+    <div class="bsheet-handle"></div>
+    <div class="bsheet-head">
+      <button class="bsheet-close" onclick="closeSheet('walletSheet')"></button>
+      <span class="bsheet-title">👛 محفظتي</span>
+      <span style="width:40px"></span>
+    </div>
+    <div class="bsheet-body" id="walletBody"></div>
+  </div>
+</div>
+
+<!-- ═══ 💬 الدردشة ويا امواج ═══ -->
+<div id="chatSheet" class="bsheet-overlay">
+  <div class="bsheet">
+    <div class="bsheet-handle"></div>
+    <div class="bsheet-head">
+      <button class="bsheet-close" onclick="closeSheet('chatSheet')"></button>
+      <span class="bsheet-title">💬 دردشة مع امواج</span>
+      <button onclick="openCallPicker()" title="اتصال" class="header-wa-btn">📞</button>
+    </div>
+    <div id="chatList" class="chat-list"></div>
+    <div id="chatPreview" class="chat-preview"></div>
+    <div id="chatBar" class="chat-bar">
+      <button class="chat-attach" onclick="chatPickImage()" onmousedown="event.preventDefault()" aria-label="صورة">📷</button>
+      <textarea id="chatInput" class="chat-input" rows="1" placeholder="اكتب رسالتك…" oninput="chatAutoGrow(this)" onkeydown="chatKey(event)" onfocus="chatFitSoon()" onblur="chatFitSoon()"></textarea>
+      <button id="chatSendBtn" class="chat-send" onclick="chatSend()" onmousedown="event.preventDefault()" aria-label="إرسال">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+      <input type="file" id="chatFile" accept="image/*" style="display:none" onchange="chatFileChosen(this)">
+    </div>
+  </div>
+</div>
+
 <!-- ═══ صفحة تواصل معنا ═══ -->
 <div id="contactSheet" class="bsheet-overlay">
   <div class="bsheet">
@@ -217,6 +272,16 @@
         <div style="font-size:18px;font-weight:800;margin-bottom:4px;position:relative;letter-spacing:-0.3px;">نسعد بخدمتكم</div>
         <div style="font-size:13px;opacity:0.92;position:relative;">اختر طريقة التواصل المناسبة</div>
       </div>
+
+      <!-- 💬 الدردشة داخل التطبيق — أسرع من واتساب لأن الرسالة توصل للوحة مباشرة -->
+      <button class="contact-chat-card" onclick="openChat()">
+        <div class="ccc-icon">💬</div>
+        <div class="ccc-text">
+          <div class="ccc-title">دردشة مباشرة مع امواج</div>
+          <div class="ccc-sub">اكتبلنا أو دز صورة القطعة — من هنا بدون واتساب</div>
+        </div>
+        <div class="ccc-arrow">‹</div>
+      </button>
 
       <!-- قسم واتساب الرئيسي -->
       <div class="contact-section-title">💬 واتساب للطلبات والاستفسار</div>
@@ -917,6 +982,182 @@ body {
 .whatsapp-btn:active {
   transform: scale(0.98);
   box-shadow: 0 2px 8px rgba(37,211,102,0.3);
+}
+
+/* ═══ 💬 زر «للتواصل» بالشريط السفلي + زر الدردشة فوق — نفس الأزرق حتى يبرزون ═══ */
+.footer-tab-icon.chat-tab-ic {
+  /* مربع بزوايا مدوّرة — نفس شكل زر 💬 الي فوق بالرئيسية */
+  position: relative; width: 36px; height: 36px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  box-shadow: 0 4px 12px rgba(2,132,199,.35);
+}
+.home-icon-btn.chat-head-btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-color: transparent; box-shadow: 0 4px 12px rgba(2,132,199,.35);
+}
+/* 👋 ترحيب الدردشة — يطلع مرة وحدة بنص المحادثة */
+.chat-intro {
+  position: absolute; left: 18px; right: 18px; top: 50%; transform: translateY(-50%); z-index: 5;
+  background: var(--card); border-radius: 26px; padding: 30px 20px 20px; text-align: center;
+  box-shadow: 0 24px 60px rgba(15,23,42,.28); border: 2px solid var(--primary-light);
+  animation: ciIn .35s var(--ease-out);
+}
+@keyframes ciIn { from { opacity: 0; transform: translateY(-44%) scale(.94); } to { opacity: 1; transform: translateY(-50%) scale(1); } }
+.chat-intro .ci-x {
+  position: absolute; top: 12px; left: 12px; width: 36px; height: 36px; border-radius: 50%;
+  border: none; background: var(--surface-2); font-size: 17px; cursor: pointer; color: var(--muted);
+}
+.chat-intro .ci-big { font-size: 34px; font-weight: 900; color: var(--primary-dark); margin-bottom: 10px; }
+.chat-intro .ci-t { font-size: 19px; font-weight: 800; color: var(--text); margin-bottom: 8px; line-height: 1.6; }
+.chat-intro .ci-s { font-size: 15.5px; color: var(--muted); line-height: 1.8; }
+.chat-intro .ci-gift {
+  margin-top: 14px; background: #F0FDF4; border: 1px dashed #86EFAC; color: #166534;
+  border-radius: 14px; padding: 10px 12px; font-size: 14.5px; line-height: 1.7; cursor: pointer;
+}
+.chat-intro .ci-go {
+  margin-top: 16px; width: 100%; border: none; border-radius: 16px; padding: 14px; cursor: pointer;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff;
+  font-size: 17px; font-weight: 800; font-family: 'Tajawal', sans-serif;
+}
+
+/* ═══ 💬 الدردشة ويا امواج ═══ */
+#chatSheet .bsheet { background: #EAF2F8; }
+.chat-list {
+  flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 12px 12px 10px; display: flex; flex-direction: column; gap: 6px;
+}
+.chat-hello {
+  align-self: center; max-width: 92%; background: var(--card);
+  border: 1px solid var(--primary-light); color: var(--text-2);
+  font-size: 14.5px; line-height: 1.75; padding: 10px 14px; border-radius: 14px;
+  text-align: center; margin: 2px 0 8px;
+}
+.chat-day { align-self: center; margin: 8px 0 2px; }
+.chat-day span {
+  background: rgba(15,23,42,.07); color: var(--muted); font-size: 12.5px;
+  font-weight: 700; padding: 3px 12px; border-radius: 20px;
+}
+/* بالعربي: رسائل امواج يمين، ورسائلك يسار — نفس واتساب */
+.chat-msg {
+  max-width: 82%; padding: 7px 11px 4px; border-radius: 16px;
+  font-size: 16px; line-height: 1.6; overflow-wrap: anywhere;
+  box-shadow: 0 1px 2px rgba(15,23,42,.08); color: var(--text);
+}
+.chat-msg.them { align-self: flex-start; background: var(--card); border-top-right-radius: 5px; }
+.chat-msg.me   { align-self: flex-end;   background: #D3EEFF;     border-top-left-radius: 5px; }
+.chat-msg.tmp  { opacity: .6; }
+.chat-text { white-space: pre-wrap; }
+.chat-text a { color: var(--primary-dark); text-decoration: underline; }
+.chat-img {
+  display: block; width: 240px; max-width: 100%; max-height: 320px; object-fit: cover;
+  border-radius: 12px; margin: 3px 0 4px; background: #E2E8F0; cursor: zoom-in;
+}
+.chat-meta { font-size: 11.5px; color: var(--muted); text-align: left; margin-top: 1px; }
+.chat-tick { font-weight: 800; letter-spacing: -2px; }
+.chat-tick.seen { color: var(--primary); }
+.chat-preview {
+  display: none; align-items: center; gap: 10px; padding: 8px 12px; flex-shrink: 0;
+  background: var(--card); border-top: 1px solid var(--border-light);
+  font-size: 13.5px; color: var(--muted);
+}
+.chat-preview img { width: 54px; height: 54px; object-fit: cover; border-radius: 10px; }
+.chat-preview button {
+  width: 32px; height: 32px; border-radius: 50%; border: none; flex-shrink: 0;
+  background: var(--surface-2); font-size: 15px; cursor: pointer;
+}
+.chat-bar {
+  display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0;
+  padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+  background: var(--card); border-top: 1px solid var(--border-light);
+}
+/* 🍎 الآيفون: الموقع ما يعرف حجم الحافة الي تحت (خط الرجوع للرئيسية والزوايا
+   المدوّرة)، فالخانة كانت تنلزگ بالحافة والزاوية تقص زر الإرسال. نرفعها بيدنا. */
+.chat-bar.ios { padding: 8px 16px calc(10px + max(env(safe-area-inset-bottom, 0px), 22px)); }
+#chatSheet.kb .chat-bar { padding-bottom: 8px; }   /* الكيبورد طالع — ما نحتاج فراغ الحافة */
+.chat-input {
+  flex: 1; min-width: 0; height: 44px; max-height: 124px; resize: none;
+  border: 1px solid var(--border); border-radius: 22px; padding: 10px 16px;
+  font-family: 'Tajawal', sans-serif; font-size: 16px; line-height: 1.45;
+  background: var(--surface); color: var(--text); outline: none;
+}
+.chat-input:focus { border-color: var(--primary); background: #fff; }
+.chat-attach, .chat-send {
+  width: 44px; height: 44px; border-radius: 50%; border: none; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px;
+}
+.chat-attach { background: var(--surface-2); }
+.chat-send { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; }
+.chat-send svg { transform: scaleX(-1); }   /* السهم يأشر يسار — اتجاه الكتابة بالعربي */
+.chat-send:disabled { opacity: .5; }
+.chat-empty { text-align: center; padding: 40px 10px; color: var(--muted); font-size: 15px; }
+.chat-guest { text-align: center; padding: 36px 18px; margin: auto 0; }
+.chat-guest .t { font-size: 19px; font-weight: 800; color: var(--text); margin: 8px 0 6px; }
+.chat-guest .s { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 18px; }
+.chat-guest .form-btn { margin-bottom: 10px; }
+.chat-badge {
+  position: absolute; top: -5px; left: -5px; min-width: 20px; height: 20px; padding: 0 5px;
+  border-radius: 10px; background: var(--red); color: #fff; font-size: 11.5px; font-weight: 800;
+  line-height: 16px; text-align: center; border: 2px solid #fff; box-sizing: border-box;
+}
+.chat-badge.inline { position: static; border: none; line-height: 20px; margin-inline-end: 6px; }
+.contact-chat-card {
+  width: 100%; display: flex; align-items: center; gap: 12px; text-align: right;
+  background: var(--card); border: 2px solid var(--primary); border-radius: 18px;
+  padding: 14px; margin-bottom: 20px; cursor: pointer; font-family: 'Tajawal', sans-serif;
+  box-shadow: 0 6px 18px rgba(14,165,233,.15);
+}
+.contact-chat-card:active { transform: scale(.98); }
+.contact-chat-card .ccc-icon {
+  width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0; font-size: 24px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+.contact-chat-card .ccc-text { flex: 1; min-width: 0; }
+.contact-chat-card .ccc-title { font-size: 17px; font-weight: 800; color: var(--text); }
+.contact-chat-card .ccc-sub { font-size: 13.5px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+.contact-chat-card .ccc-arrow { font-size: 22px; color: var(--primary); font-weight: 800; }
+
+/* ═══ 👛 المحفظة + ⭐ الجملة ═══ */
+.wallet-card {
+  margin: 14px 14px 4px; padding: 16px; border-radius: 20px; cursor: pointer; color: #fff;
+  background: linear-gradient(135deg, #0EA5E9, #0369A1 60%, #6D28D9);
+  box-shadow: 0 10px 26px rgba(3,105,161,.3); position: relative; overflow: hidden;
+}
+.wallet-card:active { transform: scale(.99); }
+.wallet-card .wc-top { display: flex; justify-content: space-between; align-items: center; }
+.wallet-card .wc-label { font-size: 15px; font-weight: 800; opacity: .95; }
+.wallet-card .wc-bal { font-size: 32px; font-weight: 900; margin: 6px 0 2px; }
+.wallet-card .wc-bal small { font-size: 15px; font-weight: 800; opacity: .85; }
+.wallet-card .wc-hint { font-size: 13.5px; opacity: .92; line-height: 1.6; }
+.wallet-card .wc-more { display: block; text-align: left; margin-top: 6px; font-size: 13px; font-weight: 800; opacity: .9; }
+.wc-prog { height: 8px; background: rgba(255,255,255,.25); border-radius: 8px; margin: 10px 0 6px; overflow: hidden; }
+.wc-prog > div { height: 100%; background: #FDE68A; border-radius: 8px; }
+.tier-chip {
+  display: inline-flex; align-items: center; gap: 4px; background: #FEF3C7; color: #92400E;
+  font-size: 12.5px; font-weight: 900; padding: 2px 10px; border-radius: 20px; border: 1px solid #FCD34D;
+}
+.wallet-card .tier-chip { background: rgba(255,255,255,.2); color: #fff; border-color: rgba(255,255,255,.35); }
+.wl-how { background: var(--card); border: 1px solid var(--border-light); border-radius: 16px; padding: 14px; margin: 14px 0; }
+.wl-how .t { font-size: 16px; font-weight: 800; margin-bottom: 8px; color: var(--text); }
+.wl-how div { font-size: 14.5px; color: var(--text-2); line-height: 1.9; }
+.wl-tx { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--border-light);
+  border-radius: 14px; padding: 11px 13px; margin-bottom: 8px; }
+.wl-tx .ic { width: 38px; height: 38px; border-radius: 12px; background: var(--surface-2); display: flex;
+  align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+.wl-tx .mid { flex: 1; min-width: 0; }
+.wl-tx .nm { font-size: 14.5px; font-weight: 800; color: var(--text); }
+.wl-tx .sub { font-size: 12.5px; color: var(--muted); }
+.wl-tx .amt { font-size: 15.5px; font-weight: 900; direction: ltr; white-space: nowrap; }
+.wl-tx .amt.plus { color: var(--green-dark); } .wl-tx .amt.minus { color: var(--red-dark); }
+.summary-row.wallet-row { background: #F0FDF4; border: 1px dashed #86EFAC; border-radius: 12px; padding: 10px 12px; margin: 6px 0; cursor: pointer; }
+.summary-row.wallet-row input { width: 20px; height: 20px; accent-color: #10B981; vertical-align: middle; margin-left: 6px; }
+.summary-row.cb-row { color: #6D28D9; font-weight: 800; font-size: 13.5px; }
+
+/* 🍎 تنبيه القطع — بتطبيق الآيفون بس (رد أبل 1.1.6) */
+.apple-notice {
+  background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E; border-radius: 12px;
+  padding: 10px 12px; font-size: 13px; line-height: 1.7; margin: 0 0 12px;
 }
 
 /* ═══ BOTTOM SHEETS ═══ */
@@ -3087,18 +3328,24 @@ input, textarea { -webkit-user-select:text !important; user-select:text !importa
         <div>
           <div class="home-store-name">أمواج للإلكترونيات</div>
           <div class="home-store-sub" id="homeWelcome">قطع غيار موبايل · كربلاء</div>
+          <span id="tierChip" class="tier-chip" style="display:none;margin-top:4px" onclick="openWalletSheet()">⭐ زبون جملة</span>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
+          <button class="home-icon-btn chat-head-btn" onclick="openChat()" title="دردشة مع امواج" style="position:relative;">
+            <span style="font-size:20px;">💬</span>
+            <span class="chat-badge" id="chatHomeBadge" style="display:none">0</span>
+          </button>
           <button class="home-icon-btn" onclick="openNotificationsSheet()" title="الإشعارات" id="bellBtn" style="position:relative;">
             <span class="bell-icon" style="font-size:20px;">🔔</span>
             <span class="bell-badge" id="bellBadge">0</span>
           </button>
-          <button class="home-icon-btn" onclick="openContactSheet()" title="تواصل معنا">📞</button>
+          <button class="home-icon-btn" onclick="openCallPicker()" title="اتصال">📞</button>
           <button class="home-icon-btn" onclick="goAccount()" title="حسابي">👤</button>
         </div>
       </div>
 
       <!-- Hero Banner -->
+      <div class="apple-notice" style="display:none;margin:0 16px 12px">⚠️ القطع المعروضة <b>ليست من صنع Apple</b> ولا معتمدة منها، وتركيبها قد <b>يلغي ضمان Apple</b> للجهاز. امواج مورّد قطع غيار لمحلات الصيانة، ولا تقدّم خدمة تصليح ولا تبيع أجهزة.<div dir="ltr" style="margin-top:4px;font-size:12px;opacity:.85">Parts are not made or certified by Apple. Installing them may void the Apple warranty. Amwaj supplies spare parts to repair shops; it does not offer repair services or sell devices.</div></div>
       <div class="hero-banner" onclick="openContactSheet();" style="cursor:pointer;">
         <div class="hero-content">
           <div class="hero-eyebrow">🌊 أمواج للإلكترونيات</div>
@@ -3268,10 +3515,10 @@ input, textarea { -webkit-user-select:text !important; user-select:text !importa
       🛒
       <span class="bn-cart-count" id="footerCartBadge">0</span>
     </div>
-    <button class="footer-tab" id="tab-orders" onclick="requireAuth(function(){openOrdersSheet();})" style="position:relative;">
-      <span class="footer-tab-icon">📦</span>
-      <span class="footer-tab-label">طلباتي</span>
-      <span class="footer-tab-badge" id="footerOrdersBadge" style="display:none;">0</span>
+    <!-- 💬 «للتواصل» بمكان «طلباتي» — الطلبات بعدها بالرئيسية وبحسابي -->
+    <button class="footer-tab" id="tab-chat" onclick="openChat()">
+      <span class="footer-tab-icon chat-tab-ic">💬<span class="chat-badge" id="chatTabBadge" style="display:none">0</span></span>
+      <span class="footer-tab-label">للتواصل</span>
     </button>
     <button class="footer-tab" id="tab-account" onclick="goAccount()">
       <span class="footer-tab-icon">👤</span>
@@ -3297,6 +3544,22 @@ input, textarea { -webkit-user-select:text !important; user-select:text !importa
 <script src="sb-config.js"></script>
 <script>
 let cart = [];
+
+
+/* 🍎 تطبيق الآيفون (مو الموقع ولا الأندرويد): أبل طلبت نوضّح إن القطع
+   مو من صنعها وتركيبها يلغي ضمانها (1.1.6)، وما تريد شعارات منصات
+   ثانية (2.3.10). فبالآيفون: التنبيه يبين، وشعارات الماركات تنشال
+   (الأسماء تبقى نص عادي). */
+var IS_IOS_APP = (function(){
+  try { return !!(window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios'); }
+  catch(e) { return false; }
+})();
+function _showAppleNotices(){
+  if (!IS_IOS_APP) return;
+  document.querySelectorAll('.apple-notice').forEach(function(el){ el.style.display = ''; });
+}
+document.addEventListener('DOMContentLoaded', _showAppleNotices);
+setTimeout(_showAppleNotices, 1500);
 
 function sanitize(str) {
   if (!str) return '';
@@ -3358,6 +3621,7 @@ function closeSheet(id) {
      بسحبة الرجوع وبزر الأندرويد، ولو علّقناها بالزر بس تضل
      الكاميرا شغّالة والضوء مضوّي. */
   if (id === 'qrSheet') { try { qrStop(); } catch(e) {} }
+  if (id === 'chatSheet') { try { chatStop(); _chatIntroClose(); } catch(e) {} }   // 💬 نوقف السؤال المتكرر
   el.classList.remove('open');
   // Remove from stack
   var idx = _sheetStack.lastIndexOf(id);
@@ -4589,6 +4853,7 @@ function renderCart() {
   const _provinceEl = document.getElementById('orderProvince');
   const _deliveryFee = getDeliveryFee(_provinceEl ? _provinceEl.value : '');
   const _grandTotal = total + (_deliveryFee || 0);
+  const _walUse = _walletUseFor(_grandTotal);     // 👛 ينخصم من المحفظة
   html += `
     <div class="cart-summary">
       <div class="summary-row">
@@ -4603,15 +4868,23 @@ function renderCart() {
         <span>أجور التوصيل</span>
         <span class="amt">${_deliveryFee === null ? 'اختر المحافظة' : (_deliveryFee > 0 ? formatPriceIQD(_deliveryFee) + ' د.ع' : 'مجاني')}</span>
       </div>
+      ${(_chatTok() && WALLET.loaded && WALLET.balance > 0 && !isGuest()) ? `
+      <label class="summary-row wallet-row">
+        <span><input type="checkbox" ${USE_WALLET ? 'checked' : ''} onchange="toggleUseWallet(this.checked)">👛 استعمل رصيدي (${_fmtIQD(WALLET.balance)})</span>
+        <span class="amt" style="color:var(--green-dark)">${_walUse ? '− ' + _fmtIQD(_walUse) + ' د.ع' : ''}</span>
+      </label>` : ''}
       <div class="summary-row total">
         <span>المجموع الكلي</span>
-        <span class="amt">${formatPriceIQD(_grandTotal)} د.ع</span>
+        <span class="amt">${formatPriceIQD(_grandTotal - _walUse)} د.ع</span>
       </div>
+      ${(_chatTok() && _cbOn() && !isGuest() && _cbFor(total) > 0) ? `
+      <div class="summary-row cb-row"><span>💰 راح ينزلك بمحفظتك</span><span class="amt">${_fmtIQD(_cbFor(total))} د.ع</span></div>` : ''}
+      ${WHOLESALE_ON ? '<div class="summary-row cb-row" style="color:#92400E"><span>⭐ الأسعار أسعار جملة</span><span></span></div>' : ''}
     </div>
   `;
 
   container.innerHTML = html;
-  if (totalEl) totalEl.textContent = formatPriceIQD(_grandTotal) + ' د.ع';
+  if (totalEl) totalEl.textContent = formatPriceIQD(_grandTotal - _walUse) + ' د.ع';
 }
 
 function changeQuantity(index, change) {
@@ -4760,7 +5033,8 @@ async function submitOrder() {
           payload: {
             name: name, shop: shop, phone: phone, address: fullAddress,
             province: province, district: district, districtId: districtId,
-            deliveryFee: deliveryFee, items: cart
+            deliveryFee: deliveryFee, items: cart,
+            useWallet: (!guest && USE_WALLET && WALLET.balance > 0)   // 👛
           }
         });
         if (!_ord || !_ord.ok) throw new Error((_ord && _ord.error) || 'ما وصل الطلب للسيرفر');
@@ -4785,6 +5059,14 @@ async function submitOrder() {
       // ✅ اعرض النجاح
       {
         result.innerHTML = '<div class="result success">✅ تم إرسال الطلب بنجاح!<br>سيتم تجهيزها قريباً 📦</div>';
+        // 👛 شنو صار بالمحفظة
+        try {
+          var _wm = [];
+          if (_ord && _ord.walletUsed) _wm.push('انخصم من محفظتك ' + _fmtIQD(_ord.walletUsed) + ' د.ع');
+          if (_ord && _ord.cashback) _wm.push('نزل بمحفظتك ' + _fmtIQD(_ord.cashback) + ' د.ع مكافأة 💰');
+          if (_wm.length) setTimeout(function(){ showPushToast('👛 محفظتك', _wm.join(' · '), openWalletSheet); }, 900);
+          walletLoad(true);
+        } catch(e) {}
 
         // تحويل زر الإرسال إلى حسناً
         cart = []; saveCart();
@@ -4924,6 +5206,9 @@ function openOrdersSheet() {
 }
 
 function openCartSheet() {
+  // 👛 الرصيد يتحدّث بالخلفية، والسلة تنرسم من جديد لما يوصل
+  try { walletLoad().then(function(){ var cs = document.getElementById('cartSheet');
+    if (cs && cs.classList.contains('open')) renderCart(); }); } catch(e) {}
   // 🕐 نحدّث حالة المحل بهدوء وقت فتح السلة — حتى لو التطبيق مفتوح من ساعات
   //    والوقت عبر منتصف الليل، الرسالة تطلع صح مو حسب حالة قديمة.
   try {
@@ -5136,7 +5421,7 @@ function renderSheetBrands(type) {
   }
 
   function brandCard(b) {
-    var logosContent = getBrandLogos(b.brands);
+    var logosContent = (typeof IS_IOS_APP !== 'undefined' && IS_IOS_APP) ? '' : getBrandLogos(b.brands);   // 🍎 بلا شعارات
     return '<div class="sheet-brand-btn" onclick="openSheetBrand(\'' + b.brands + '\')">' +
       (logosContent ? '<div class="brand-logos">' + logosContent + '</div>' : '') +
       '<b>' + b.label + '</b>' +
@@ -5988,7 +6273,10 @@ function _orderMoney(o) {
   var itemsSum = (o.items || []).reduce(function(s, it){
     return s + (Number(String(it.price||'').replace(/[^0-9]/g,'')) || 0) * (Number(it.quantity) || 1);
   }, 0);
-  return { total: total, itemsSum: itemsSum, deliveryFee: Math.max(0, total - itemsSum) };
+  // 👛 المجموع صار **بعد** خصم المحفظة — نرجّعه بالحساب حتى التوصيل يطلع صح (ملف ١٢٧)
+  var walletUsed = Number(o.walletUsed) || 0;
+  return { total: total, itemsSum: itemsSum, walletUsed: walletUsed,
+           deliveryFee: Math.max(0, total + walletUsed - itemsSum) };
 }
 
 // ── يمكن الإلغاء خلال 20 دقيقة من إنشاء الطلب وفقط إذا قيد المراجعة ──
@@ -6099,8 +6387,13 @@ function openOrderDetail(orderId) {
           '<div style="display:flex;justify-content:space-between;font-size:13.5px;color:var(--muted);padding:3px 0;">' +
             '<span>🚚 التوصيل</span><span dir="ltr">' + (money.deliveryFee > 0 ? formatPriceIQD(money.deliveryFee) + ' د.ع' : 'مجاني') + '</span>' +
           '</div>' +
+          (money.walletUsed > 0
+            ? '<div style="display:flex;justify-content:space-between;font-size:13.5px;color:#15803D;font-weight:800;padding:3px 0;">' +
+                '<span>👛 خصم المحفظة</span><span dir="ltr">− ' + formatPriceIQD(money.walletUsed) + ' د.ع</span>' +
+              '</div>'
+            : '') +
           '<div style="display:flex;justify-content:space-between;font-size:16px;font-weight:900;color:var(--primary-dark);padding:8px 0 2px;border-top:1px solid var(--border-light,#E2E8F0);margin-top:5px;">' +
-            '<span>💰 المجموع الكلي</span><span dir="ltr">' + formatPriceIQD(money.total) + ' د.ع</span>' +
+            '<span>💰 ' + (money.walletUsed > 0 ? 'المطلوب منك' : 'المجموع الكلي') + '</span><span dir="ltr">' + formatPriceIQD(money.total) + ' د.ع</span>' +
           '</div>' +
         '</div>' +
 
@@ -6109,7 +6402,8 @@ function openOrderDetail(orderId) {
               sanitize(String(prime.primeCaseId)) + ' · ' + sanitize(_primeDisplayStatus(prime)) + '</div>'
           : '') +
 
-        '<a href="' + _orderWaUrl(o) + '" target="_blank" class="order-wa-btn" style="display:block;text-align:center;margin-top:12px;">💬 استفسار عن هذا الطلب</a>' +
+        '<button onclick="chatAboutOrder(\'' + sanitize(String(o.orderId || '')) + '\')" class="order-wa-btn" ' +
+          'style="display:block;width:100%;text-align:center;margin-top:12px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));font-family:Tajawal,sans-serif;">💬 استفسار عن هذا الطلب</button>' +
         cancelBtn +
       '</div>' +
     '</div>';
@@ -6639,6 +6933,7 @@ function _frameLayerHtml(p, isScreen){
 
 async function loadCatalogFromServer(){
   var r = await sbRpc('app_catalog');
+  await _applyWholesale(r);   // ⭐ زبون جملة؟ نبدّل الأسعار قبل ما تنبني القوائم
   var parts = r.parts || {};
 
   /* 🛡️ نسبة الضمان — تجي مع الكاتلوك، فتتحدّث لحالها أول ما
@@ -7034,6 +7329,630 @@ window.scrollSheetToTop = function(){
   if (btn && btn._sc) btn._sc.scrollTo({top:0, behavior:'smooth'});
 };
 
+// ═══════════════════════════════════════════════════════════════
+// 💬 الدردشة ويا امواج
+//
+//   القراءة: app_chat_list مباشرة من قاعدة البيانات — كل ٤ ثواني
+//   والصفحة مفتوحة، وتوقف لما تنسكّر أو التطبيق يروح للخلفية.
+//   الإرسال: دالة السيرفر «chat» — ترفع الصورة وترن على اللوحة.
+//   والصفحة مسكّرة، رد امواج يوصل كإشعار + علامة حمرة على 💬.
+//
+//   الزبون لازم يكون مسجّل دخول (التوكن يثبت منو هو). الضيف
+//   يشوف زر تسجيل وزر واتساب.
+// ═══════════════════════════════════════════════════════════════
+var CHAT = { open:false, tok:'', items:[], pending:[], lastId:0, seenUpTo:0,
+             timer:null, busy:null, sending:false, img:null, unread:0, stick:true };
+
+function _chatTok(){ try { return getCustomerToken(); } catch(e) { return ''; } }
+
+function openChat(){
+  openSheet('chatSheet');
+  var el = document.getElementById('chatSheet');
+  if (el) el.style.zIndex = '650';     // فوق شريط التنقل (600) — حتى خانة الكتابة تبين
+  CHAT.open = true;
+  var tok = _chatTok();
+  var bar = document.getElementById('chatBar');
+  bar.style.display = tok ? '' : 'none';
+  if (/iPhone|iPad|iPod/.test(navigator.userAgent)) bar.classList.add('ios');
+  if (!tok) { _chatRenderGuest(); return; }
+  if (CHAT.tok !== tok) _chatReset(tok);        // حساب ثاني دخل على نفس الجهاز
+  if (!CHAT.items.length) {
+    document.getElementById('chatList').innerHTML =
+      '<div class="chat-empty"><div class="loading-spinner"></div></div>';
+  }
+  CHAT.stick = true;
+  // ✍️ جاي من «استفسار عن هذا الطلب»؟ رقم الطلب مكتوب جاهز
+  if (CHAT_DRAFT) {
+    var _ci = document.getElementById('chatInput');
+    _ci.value = CHAT_DRAFT; chatAutoGrow(_ci); CHAT_DRAFT = '';
+    setTimeout(function(){ try { _ci.focus(); _ci.setSelectionRange(_ci.value.length, _ci.value.length); } catch(e) {} }, 350);
+  }
+  chatFitViewport();
+  chatPoll(true);
+  clearInterval(CHAT.timer);
+  CHAT.timer = setInterval(function(){ if (!document.hidden) chatPoll(); }, 4000);
+}
+
+// تنده من closeSheet — بأي طريقة انسكّرت (زر، سحبة، زر الأندرويد)
+function chatStop(){
+  CHAT.open = false;
+  clearInterval(CHAT.timer); CHAT.timer = null;
+  var s = document.querySelector('#chatSheet .bsheet');
+  if (s) { s.style.height = ''; s.style.transform = ''; }
+  var el = document.getElementById('chatSheet');
+  if (el) el.classList.remove('kb');
+  try { document.getElementById('chatInput').blur(); } catch(e) {}
+  chatRefreshBadge();
+}
+
+function _chatReset(tok){
+  CHAT.tok = tok; CHAT.items = []; CHAT.pending = []; CHAT.lastId = 0; CHAT.seenUpTo = 0;
+}
+
+function chatPoll(scrollDown){
+  if (CHAT.busy) return CHAT.busy;
+  var tok = _chatTok();
+  if (!tok) return Promise.resolve();
+  if (CHAT.tok !== tok) _chatReset(tok);
+  CHAT.busy = sbRpc('app_chat_list', { p_token: tok, p_after: CHAT.lastId })
+    .then(function(r){
+      if (!r || r.ok !== true) {
+        _chatNotice((r && r.error) === 'يجب تسجيل الدخول'
+          ? 'انتهت جلستك — اطلع وسجّل دخول من جديد حتى تكمل الدردشة.'
+          : ((r && r.error) || 'تعذّر التحميل'));
+        return;
+      }
+      var fresh = (r.items || []).filter(function(m){ return m.id > CHAT.lastId; });
+      var ticks = (r.seenUpTo || 0) !== CHAT.seenUpTo;
+      CHAT.seenUpTo = r.seenUpTo || 0;
+      if (fresh.length) {
+        CHAT.items = CHAT.items.concat(fresh);
+        CHAT.lastId = fresh[fresh.length - 1].id;
+      }
+      if (fresh.length || ticks || scrollDown || !CHAT.rendered) chatRender(!!scrollDown || fresh.length > 0);
+      CHAT.unread = 0; chatPaintBadge();
+    })
+    .catch(function(){
+      if (!CHAT.items.length) _chatNotice('تعذّر التحميل — تأكد من النت وارجع افتحها');
+    })
+    .then(function(){ CHAT.busy = null; });
+  return CHAT.busy;
+}
+
+function _chatNotice(msg){
+  var box = document.getElementById('chatList');
+  if (box) box.innerHTML = '<div class="chat-empty">' + sanitize(msg) + '</div>';
+  CHAT.rendered = false;
+}
+
+function _chatDay(d){
+  var t = new Date(); t.setHours(0,0,0,0);
+  var x = new Date(d.getTime()); x.setHours(0,0,0,0);
+  var diff = Math.round((t - x) / 86400000);
+  if (diff === 0) return 'اليوم';
+  if (diff === 1) return 'أمس';
+  return d.toLocaleDateString('ar-IQ', { day:'numeric', month:'long' });
+}
+
+function _chatLinkify(safe){
+  return safe.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+}
+
+function _chatBubble(m){
+  var h = '<div class="chat-msg ' + (m.me ? 'me' : 'them') + (m.tmp ? ' tmp' : '') + '">';
+  if (m.img)  h += '<img class="chat-img" src="' + sanitize(m.img) + '" alt="" onclick="openImgLightbox(this.src)" onload="_chatImgLoaded()">';
+  if (m.text) h += '<div class="chat-text">' + _chatLinkify(sanitize(m.text)) + '</div>';
+  var t = m.at ? new Date(m.at) : new Date();
+  var tick = '';
+  if (m.me) tick = m.tmp ? ' 🕓'
+    : (m.id <= CHAT.seenUpTo ? ' <span class="chat-tick seen">✓✓</span>' : ' <span class="chat-tick">✓</span>');
+  h += '<div class="chat-meta">' + t.toLocaleTimeString('ar-IQ', { hour:'numeric', minute:'2-digit' }) + tick + '</div>';
+  return h + '</div>';
+}
+
+function chatRender(scroll){
+  var box = document.getElementById('chatList');
+  if (!box) return;
+  var h = '<div class="chat-hello">👋 هلا بيك! اكتب سؤالك أو <b>صوّر القطعة</b> الي تحتاجها، ونرد عليك بأسرع وقت خلال الدوام.</div>';
+  var lastDay = '';
+  CHAT.items.concat(CHAT.pending).forEach(function(m){
+    var day = _chatDay(m.at ? new Date(m.at) : new Date());
+    if (day !== lastDay) { h += '<div class="chat-day"><span>' + day + '</span></div>'; lastDay = day; }
+    h += _chatBubble(m);
+  });
+  box.innerHTML = h;
+  CHAT.rendered = true;
+  if (scroll || CHAT.stick) { box.scrollTop = box.scrollHeight; CHAT.stick = true; }
+  if (!box._chatScroll) {
+    box._chatScroll = true;
+    // الزبون صعد يقرا رسائل قديمة؟ ما نسحبه لتحت كل ما تجي رسالة
+    box.addEventListener('scroll', function(){
+      CHAT.stick = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    }, { passive: true });
+  }
+}
+
+// الصورة تحمّل بعد ما ترسمت الرسائل — ننزل لتحت مرة ثانية حتى ما تنگص
+function _chatImgLoaded(){
+  if (!CHAT.stick) return;
+  var box = document.getElementById('chatList');
+  if (box) box.scrollTop = box.scrollHeight;
+}
+
+function _chatRenderGuest(){
+  document.getElementById('chatList').innerHTML =
+    '<div class="chat-guest"><div style="font-size:46px">💬</div>' +
+    '<div class="t">الدردشة تحتاج حساب</div>' +
+    '<div class="s">سجّل برقم هاتفك حتى تراسلنا من هنا وتوصلك الردود كإشعار — أو راسلنا واتساب هسه.</div>' +
+    '<button class="form-btn" onclick="closeSheet(\'chatSheet\');showScreen(\'loginScreen\')">تسجيل الدخول</button>' +
+    '<button class="form-btn" style="background:linear-gradient(135deg,#25D366,#128C7E)" onclick="openWhatsApp(\'السلام عليكم\')">💬 واتساب</button>' +
+    '</div>';
+  CHAT.rendered = false;
+}
+
+function chatAutoGrow(t){
+  t.style.height = 'auto';
+  t.style.height = Math.min(Math.max(t.scrollHeight, 44), 124) + 'px';
+}
+
+// بالكمبيوتر: Enter يرسل و Shift+Enter سطر جديد. بالموبايل Enter سطر جديد عادي.
+function chatKey(e){
+  if (e.key !== 'Enter' || e.shiftKey) return;
+  var fine = false;
+  try { fine = window.matchMedia('(pointer:fine)').matches; } catch(err) {}
+  if (fine) { e.preventDefault(); chatSend(); }
+}
+
+function chatPickImage(){
+  var f = document.getElementById('chatFile');
+  if (!f) return;
+  f.value = '';
+  f.click();
+}
+
+// 🖼️ نصغّر الصورة بالجهاز قبل الرفع (~200 كيلو بدل ٤ ميجا) — ترسل أسرع وتفتح أسرع
+function _chatShrink(file, max, q){
+  return new Promise(function(res, rej){
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function(){
+      URL.revokeObjectURL(url);
+      var w = img.naturalWidth, h = img.naturalHeight;
+      if (w > max || h > max) { var s = max / Math.max(w, h); w = Math.round(w * s); h = Math.round(h * s); }
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      var x = c.getContext('2d');
+      x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);
+      x.drawImage(img, 0, 0, w, h);
+      res(c.toDataURL('image/jpeg', q));
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); rej(new Error('bad image')); };
+    img.src = url;
+  });
+}
+
+function chatFileChosen(inp){
+  var file = inp.files && inp.files[0];
+  if (!file) return;
+  if (file.type && !/^image\//.test(file.type)) { alert('اختار صورة'); return; }
+  _chatShrink(file, 1280, 0.8).then(function(dataUrl){
+    _chatSetImg({ url: dataUrl, b64: dataUrl.split(',')[1] });
+  }).catch(function(){ alert('ما گدرت أفتح الصورة — جرّب وحدة ثانية'); });
+}
+
+function _chatSetImg(o){
+  CHAT.img = o;
+  var p = document.getElementById('chatPreview');
+  p.innerHTML = '<img src="' + o.url + '" alt=""><span style="flex:1">الصورة جاهزة — اكتب شي وياها أو دزها</span>' +
+                '<button onclick="_chatClearImg()" aria-label="شيل الصورة">✕</button>';
+  p.style.display = 'flex';
+}
+function _chatClearImg(){
+  CHAT.img = null;
+  var p = document.getElementById('chatPreview');
+  if (p) { p.innerHTML = ''; p.style.display = 'none'; }
+}
+
+async function chatSend(){
+  if (CHAT.sending) return;
+  var inp = document.getElementById('chatInput');
+  var text = (inp.value || '').trim();
+  var img = CHAT.img;
+  if (!text && !img) { inp.focus(); return; }
+  if (text.length > 2000) { alert('الرسالة طويلة — قسّمها لرسالتين'); return; }
+
+  CHAT.sending = true;
+  document.getElementById('chatSendBtn').disabled = true;
+  // تبين فوراً باهتة 🕓 — وتتبدل بالحقيقية أول ما توصل
+  var tmp = { tmp: true, me: true, text: text, img: img ? img.url : null, at: new Date().toISOString() };
+  CHAT.pending.push(tmp);
+  inp.value = ''; chatAutoGrow(inp); _chatClearImg();
+  chatRender(true);
+  try {
+    var body = { action: 'send', token: _chatTok(), text: text };
+    if (img) { body.imageBase64 = img.b64; body.mimeType = 'image/jpeg'; }
+    await sbFn('chat', body);
+    if (CHAT.busy) { try { await CHAT.busy; } catch(e) {} }
+    await chatPoll(true);
+    CHAT.pending.splice(CHAT.pending.indexOf(tmp), 1);
+    chatRender(true);
+  } catch(e) {
+    CHAT.pending.splice(CHAT.pending.indexOf(tmp), 1);
+    chatRender(false);
+    // نرجّع الكلام والصورة حتى ما يعيد يكتبهن
+    if (!inp.value) { inp.value = text; chatAutoGrow(inp); }
+    if (img && !CHAT.img) _chatSetImg(img);
+    alert('❌ ما انرسلت: ' + ((e && e.message) || 'تأكد من النت'));
+  } finally {
+    CHAT.sending = false;
+    document.getElementById('chatSendBtn').disabled = false;
+  }
+}
+
+/* ⌨️ الكيبورد: بالآيفون ما يصغّر الصفحة، يغطيها. فنقيس الجزء الي
+   يبين فعلاً (visualViewport) ونخلي الدردشة بحجمه بالضبط — حتى
+   خانة الكتابة تبقى فوق الكيبورد والرسائل ما تختفي وراه. */
+function chatFitViewport(){
+  var el = document.getElementById('chatSheet');
+  var s = el && el.querySelector('.bsheet');
+  var vv = window.visualViewport;
+  if (!s) return;
+  if (!CHAT.open || !vv) { s.style.height = ''; s.style.transform = ''; return; }
+  s.style.height = Math.round(vv.height) + 'px';
+  s.style.transform = vv.offsetTop > 1 ? 'translateY(' + Math.round(vv.offsetTop) + 'px)' : '';
+  el.classList.toggle('kb', vv.height < window.innerHeight - 120);
+  if (CHAT.stick) { var b = document.getElementById('chatList'); if (b) b.scrollTop = b.scrollHeight; }
+}
+// الكيبورد ياخذ لحظة حتى يطلع أو ينزل — نعيد القياس كم مرة بعد ما تضغط الخانة أو تطلع منها
+function chatFitSoon(){ [60, 300, 650].forEach(function(ms){ setTimeout(chatFitViewport, ms); }); }
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', chatFitViewport);
+  window.visualViewport.addEventListener('scroll', chatFitViewport);
+}
+
+// 🔴 العلامة الحمرة — رسائل من امواج ما انقرت
+function _chatBadgeHtml(id){
+  return '<span class="chat-badge inline" id="' + id + '" style="display:' + (CHAT.unread > 0 ? '' : 'none') + '">' +
+         (CHAT.unread > 9 ? '9+' : CHAT.unread) + '</span>';
+}
+function chatPaintBadge(){
+  ['chatHomeBadge', 'acctChatBadge', 'chatTabBadge'].forEach(function(id){
+    var b = document.getElementById(id);
+    if (!b) return;
+    b.textContent = CHAT.unread > 9 ? '9+' : String(CHAT.unread);
+    b.style.display = CHAT.unread > 0 ? '' : 'none';
+  });
+}
+function chatRefreshBadge(){
+  var tok = _chatTok();
+  if (!tok || CHAT.open) { if (!tok) CHAT.unread = 0; chatPaintBadge(); return; }
+  sbRpc('app_chat_unread', { p_token: tok }).then(function(r){
+    if (r && r.ok) { CHAT.unread = r.n || 0; chatPaintBadge(); }
+  }).catch(function(){});
+}
+
+// 🔔 وصل إشعار «رد من امواج» والتطبيق مفتوح
+function _chatOnPush(title, body){
+  if (CHAT.open) { chatPoll(true); return; }
+  CHAT.unread++; chatPaintBadge();
+  showPushToast(sanitize(title), sanitize(body), openChat);
+}
+
+setTimeout(chatRefreshBadge, 3500);
+setInterval(function(){ if (!document.hidden && !CHAT.open) chatRefreshBadge(); }, 90000);
+document.addEventListener('visibilitychange', function(){
+  if (document.hidden) return;
+  if (CHAT.open) chatPoll(); else chatRefreshBadge();
+});
+
+// 📞 زر الاتصال (فوق بالرئيسية وبالدردشة): يطلع رقمينا والزبون يختار
+function openCallPicker(){
+  var old = document.getElementById('callPicker');
+  if (old) old.remove();
+  var ov = document.createElement('div');
+  ov.id = 'callPicker';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100000;' +
+    'display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .15s;';
+  var btn = function(num, label){
+    return '<a href="tel:' + num + '" style="display:flex;align-items:center;justify-content:center;gap:10px;' +
+      'background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;text-decoration:none;' +
+      'font-size:20px;font-weight:800;padding:15px;border-radius:16px;margin-bottom:10px;direction:ltr;">' +
+      '📞 ' + label + '</a>';
+  };
+  ov.innerHTML =
+    '<div style="background:#fff;width:100%;max-width:480px;border-radius:22px 22px 0 0;padding:20px 16px ' +
+      'calc(16px + env(safe-area-inset-bottom,0px));direction:rtl;font-family:Tajawal,sans-serif;">' +
+      '<div style="text-align:center;font-size:18px;font-weight:800;color:var(--text);margin-bottom:14px;">📞 اتصل بينا</div>' +
+      btn('07709000160', '0770 900 0160') +
+      btn('07801372000', '0780 137 2000') +
+      '<button onclick="document.getElementById(\'callPicker\').remove()" style="width:100%;padding:13px;border:none;' +
+        'border-radius:14px;background:var(--surface-2);color:var(--muted);font-size:16px;font-weight:800;' +
+        'font-family:Tajawal,sans-serif;cursor:pointer;">إلغاء</button>' +
+    '</div>';
+  ov.addEventListener('click', function(e){ if (e.target === ov) ov.remove(); });
+  document.body.appendChild(ov);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 👛 المحفظة + ⭐ زبون الجملة (ملف ١١٥)
+//
+//   الحساب كله بالسيرفر: الهدية، المكافأة، الخصم، الإرجاع عند الإلغاء،
+//   والتحويل لجملة. التطبيق يعرض بس، ويرسل «useWallet» ويا الطلب.
+//
+//   ⭐ أسعار الجملة ما تجي ويا الكاتلوك العام (أي أحد يگدر يقراه) —
+//   تجي من app_wholesale_prices بتوكن الزبون، وبس إذا هو جملة.
+// ═══════════════════════════════════════════════════════════════
+var WALLET = { loaded:false, at:0, tok:'', balance:0, tier:'retail', progress:0,
+               threshold:0, cb:[0, 0, 0], on:true, items:[] };
+var WHOLESALE_ON = false;     // الأسعار المعروضة هسه أسعار جملة؟
+var USE_WALLET   = false;     // «استعمل رصيدي» بالسلة — الزبون يأشّره بنفسه (طلب علي)
+
+// يبدّل أسعار الكاتلوك بأسعار الجملة — ينادى داخل loadCatalogFromServer
+async function _applyWholesale(r){
+  WHOLESALE_ON = false;
+  var tok = _chatTok();
+  if (!tok || !r) return;
+  try {
+    var w = await sbRpc('app_wholesale_prices', { p_token: tok });
+    if (!w || w.tier !== 'wholesale') return;
+    var map = w.prices || {};
+    var swap = function(i){ if (i && i.code && map[i.code]) { i.retail = i.price; i.price = map[i.code]; } };
+    (r.screens || []).forEach(swap);
+    Object.keys(r.parts || {}).forEach(function(k){ (r.parts[k] || []).forEach(swap); });
+    WHOLESALE_ON = true;
+  } catch(e) { /* نبقى على المفرد — السيرفر يحسب الصح وقت الطلب بكل الأحوال */ }
+}
+
+function walletLoad(force){
+  var tok = _chatTok();
+  if (!tok) {
+    WALLET.loaded = false; WALLET.balance = 0; WALLET.tier = 'retail'; WALLET.tok = '';
+    _walletPaint();
+    return Promise.resolve();
+  }
+  if (!force && WALLET.tok === tok && Date.now() - WALLET.at < 30000) return Promise.resolve();
+  return sbRpc('app_wallet', { p_token: tok }).then(function(r){
+    if (!r || r.ok !== true) return;
+    WALLET.loaded = true; WALLET.at = Date.now(); WALLET.tok = tok;
+    WALLET.balance   = Number(r.balance) || 0;
+    WALLET.tier      = r.tier || 'retail';
+    WALLET.progress  = Number(r.progress) || 0;
+    WALLET.threshold = Number(r.threshold) || 0;
+    // النسب الثلاث (ملف ١١٨) — للحساب بالسلة بس، **ما تنعرض للزبون أبداً**
+    WALLET.cb        = Array.isArray(r.cb) ? r.cb.map(Number) : [Number(r.pct) || 0, Number(r.pct) || 0, Number(r.pct) || 0];
+    // ملف ١٢٨: أربع شرائح (1–25 · 25–50 · 50–100 · 100+ ألف)
+    WALLET.cb4       = Array.isArray(r.cb4) ? r.cb4.map(Number) : null;
+    WALLET.on        = r.on !== false;
+    // 🎯 مكافأة المشتريات (ملف ١٢٣): كل ما يوصل الحد ينزله مبلغ
+    WALLET.goal      = Number(r.goal) || 0;
+    WALLET.goalBonus = Number(r.goalBonus) || 0;
+    WALLET.goalLeft  = Number(r.goalLeft) || 0;
+    WALLET.items     = r.items || [];
+    _walletPaint();
+    // صار جملة (أو رجع مفرد) من آخر تحميل؟ نعيد الأسعار
+    if ((WALLET.tier === 'wholesale') !== WHOLESALE_ON) {
+      try { loadCatalogFromServer().then(function(){
+        var cs = document.getElementById('cartSheet');
+        if (cs && cs.classList.contains('open')) renderCart();
+      }); } catch(e) {}
+    }
+  }).catch(function(){});
+}
+
+function _fmtIQD(n){ return formatPriceIQD(Math.abs(Number(n) || 0)); }
+
+function _walletCardHtml(){
+  if (!_chatTok()) return '';
+  var W = WALLET, h = '<div class="wallet-card" id="walletCardBox" onclick="openWalletSheet()">';
+  h += '<div class="wc-top"><span class="wc-label">👛 محفظتي</span>' +
+       (W.tier === 'wholesale' ? '<span class="tier-chip">⭐ زبون جملة</span>' : '') + '</div>';
+  h += '<div class="wc-bal">' + (W.loaded ? _fmtIQD(W.balance) : '…') + ' <small>د.ع</small></div>';
+  if (W.loaded && W.on && W.goal > 0 && W.goalBonus > 0) {
+    // 🎯 شريط المكافأة الجاية — يبدي من جديد بعد كل مكافأة
+    var gp = Math.max(0, Math.min(100, Math.round((W.goal - W.goalLeft) * 100 / W.goal)));
+    h += '<div class="wc-prog"><div style="width:' + gp + '%"></div></div>' +
+         '<div class="wc-hint">🎯 باقي لك <b>' + _fmtIQD(W.goalLeft) + ' د.ع</b> مشتريات وتنزلك مكافأة <b>' +
+         _fmtIQD(W.goalBonus) + ' د.ع</b></div>';
+    if (W.tier === 'wholesale') h += '<div class="wc-hint">⭐ الأسعار الي تشوفها أسعار جملة</div>';
+  } else if (W.loaded && W.tier !== 'wholesale' && W.threshold > 0 && W.on) {
+    var pc = Math.min(100, Math.round(W.progress * 100 / W.threshold));
+    h += '<div class="wc-prog"><div style="width:' + pc + '%"></div></div>' +
+         '<div class="wc-hint">⭐ باقي لك <b>' + _fmtIQD(Math.max(0, W.threshold - W.progress)) +
+         ' د.ع</b> مشتريات وتصير زبون جملة</div>';
+  } else if (W.tier === 'wholesale') {
+    h += '<div class="wc-hint">الأسعار الي تشوفها بالتطبيق أسعار جملة</div>';
+  } else if (_cbOn()) {
+    h += '<div class="wc-hint">كل طلب من التطبيق ينزلك مكافأة بمحفظتك 💰</div>';
+  }
+  return h + '<span class="wc-more">التفاصيل ‹</span></div>';
+}
+
+var WL_KIND = {
+  welcome:  ['🎁', 'هدية الترحيب'],
+  cashback: ['💰', 'مكافأة طلب'],
+  spend:    ['🛒', 'صرف بطلب'],
+  refund:   ['↩️', 'رجع لمحفظتك'],
+  clawback: ['➖', 'سحب مكافأة طلب ملغي'],
+  adjust:   ['✏️', 'من امواج'],
+  goal:     ['🎯', 'مكافأة مشتريات']
+};
+
+function _walletSheetHtml(){
+  var W = WALLET;
+  var h = _walletCardHtml().replace('onclick="openWalletSheet()"', '').replace('<span class="wc-more">التفاصيل ‹</span>', '');
+  h = '<div style="margin:0 -14px">' + h + '</div>';
+  h += '<div class="wl-how"><div class="t">شلون تشتغل؟</div>' +
+       (_cbOn() ? '<div>💰 كل طلب من التطبيق ينزلك <b>مكافأة</b> بمحفظتك — وكل ما يكبر طلبك تكبر المكافأة.</div>' : '') +
+       '<div>🛒 بالسلة أشّر <b>«استعمل رصيدي»</b> وينخصم من طلبك، والمندوب يستلم الباقي بس.</div>' +
+       '<div>↩️ إذا انلغى طلب، الرصيد الي صرفته بي يرجعلك.</div>' +
+       (W.threshold > 0 && W.on ? '<div>⭐ لما توصل مشترياتك <b>' + _fmtIQD(W.threshold) + ' د.ع</b> تصير زبون جملة وتنفتحلك أسعار الجملة.</div>' : '') +
+       (W.goal > 0 && W.goalBonus > 0 && W.on ? '<div>🎯 كل ما توصل مشترياتك <b>' + _fmtIQD(W.goal) + ' د.ع</b> تنزلك مكافأة <b>' + _fmtIQD(W.goalBonus) + ' د.ع</b> بمحفظتك.</div>' : '') +
+       '</div>';
+  // 📋 الحركات بصفحة لحالها (تبويبات اليوم/أسبوع/شهر/الكل) — حتى ما تصير هوسة هنا
+  h += '<button class="profile-menu-item" style="width:100%;border-radius:16px;border:1px solid var(--border-light);background:var(--card)" onclick="openWalletTx()">' +
+       '<div class="profile-menu-icon pm-icon-orders">📋</div>' +
+       '<div class="profile-menu-label">الحركات' + (W.items.length ? ' <span style="color:var(--muted);font-weight:700">(' + W.items.length + ')</span>' : '') + '</div>' +
+       '<span class="profile-menu-arrow">‹</span></button>';
+  return h;
+}
+
+function _wlTxRow(t){
+  var k = WL_KIND[t.kind] || ['•', t.kind];
+  var d = new Date(t.at);
+  return '<div class="wl-tx"><div class="ic">' + k[0] + '</div><div class="mid">' +
+         '<div class="nm">' + k[1] + '</div><div class="sub">' + sanitize(t.note || '') +
+         (t.note ? ' · ' : '') + d.toLocaleDateString('ar-IQ', { day:'numeric', month:'short' }) + '</div></div>' +
+         '<div class="amt ' + (t.amount >= 0 ? 'plus' : 'minus') + '">' + (t.amount >= 0 ? '+' : '−') +
+         _fmtIQD(t.amount) + '</div></div>';
+}
+
+var WALLET_TX_R = 'month';
+function openWalletTx(){
+  openSheet('walletTxSheet');
+  walletTxFilter(WALLET_TX_R);
+}
+function walletTxFilter(r){
+  WALLET_TX_R = r;
+  document.querySelectorAll('#walletTxTabs .orders-tab').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-r') === r);
+  });
+  var now = new Date(), from = null;
+  if (r === 'today') { from = new Date(now); from.setHours(0, 0, 0, 0); }
+  else if (r === 'week')  from = new Date(now.getTime() - 7 * 86400000);
+  else if (r === 'month') from = new Date(now.getTime() - 30 * 86400000);
+  var list = (WALLET.items || []).filter(function(t){ return !from || new Date(t.at) >= from; });
+  var b = document.getElementById('walletTxBody');
+  if (!b) return;
+  if (!list.length) {
+    b.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px 10px">ماكو حركات بهالفترة</div>';
+    return;
+  }
+  var inSum = 0, outSum = 0;
+  list.forEach(function(t){ if (t.amount >= 0) inSum += t.amount; else outSum += -t.amount; });
+  b.innerHTML =
+    '<div style="display:flex;gap:8px;margin:4px 0 12px">' +
+      '<div class="wl-tx" style="flex:1;margin:0;display:block;text-align:center"><div class="sub">دخل</div>' +
+        '<div class="amt plus">+' + _fmtIQD(inSum) + '</div></div>' +
+      '<div class="wl-tx" style="flex:1;margin:0;display:block;text-align:center"><div class="sub">انصرف</div>' +
+        '<div class="amt minus">−' + _fmtIQD(outSum) + '</div></div>' +
+    '</div>' + list.map(_wlTxRow).join('');
+}
+
+function openWalletSheet(){
+  if (!_chatTok()) { showScreen('loginScreen'); return; }
+  openSheet('walletSheet');
+  var b = document.getElementById('walletBody');
+  if (b) b.innerHTML = _walletSheetHtml();
+  walletLoad(true);
+}
+
+// يحدّث كل مكان يبين بي الرصيد أو نوع الزبون
+function _walletPaint(){
+  var box = document.getElementById('walletCardBox');
+  if (box) box.outerHTML = _walletCardHtml();
+  var ws = document.getElementById('walletSheet');
+  if (ws && ws.classList.contains('open')) {
+    var b = document.getElementById('walletBody'); if (b) b.innerHTML = _walletSheetHtml();
+  }
+  var chip = document.getElementById('tierChip');
+  if (chip) chip.style.display = (_chatTok() && WALLET.tier === 'wholesale') ? '' : 'none';
+}
+
+// 💰 كم مكافأة على مبلغ المواد — نفس حساب السيرفر (_cashback_for)
+function _cbFor(sum){
+  sum = Number(sum) || 0;
+  if (sum < 1000) return 0;
+  var pct;
+  if (WALLET.cb4) {
+    var q = WALLET.cb4;
+    pct = sum < 25000 ? q[0] : (sum < 50000 ? q[1] : (sum < 100000 ? q[2] : q[3]));
+  } else {
+    var c = WALLET.cb || [0, 0, 0];
+    pct = sum < 50000 ? c[0] : (sum < 100000 ? c[1] : c[2]);
+  }
+  return Math.max(0, Math.floor(sum * (Number(pct) || 0) / 100));
+}
+function _cbOn(){ return WALLET.on && (WALLET.cb4 || WALLET.cb || []).some(function(x){ return Number(x) > 0; }); }
+
+// كم ينخصم من المحفظة على هذا المجموع
+function _walletUseFor(total){
+  if (!_chatTok() || !USE_WALLET || !WALLET.loaded || WALLET.balance <= 0) return 0;
+  try { if (isGuest()) return 0; } catch(e) {}
+  return Math.min(WALLET.balance, Math.max(0, total));
+}
+function toggleUseWallet(on){ USE_WALLET = !!on; renderCart(); }
+
+setTimeout(function(){ walletLoad(); }, 3000);
+setInterval(function(){ if (!document.hidden) walletLoad(); }, 120000);
+document.addEventListener('visibilitychange', function(){ if (!document.hidden) walletLoad(); });
+
+/* 👋 الدردشة ميزة جديدة، وهواي زبائن ما متعودين على التطبيق — فأول
+   مرة بعد التحديث تنفتح لحالها وبنصها ترحيب كبير («صباح الخير» أو
+   «مساء الخير» حسب الوقت). يطلع **مرة وحدة بس** ويا زر ✕.
+   ينتظر لحد ما الزبون يكون بالرئيسية وماكو نافذة ثانية مفتوحة
+   (إعلان، تسجيل دخول…) حتى ما يتراكبون. */
+var CHAT_INTRO_KEY = 'amwaj_chat_intro_v1';
+function _chatIntroBusy(){
+  var home = document.getElementById('homeScreen');
+  if (!home || home.style.display === 'none') return true;
+  if (_sheetStack.length) return true;
+  return ['broadcastModal', 'loginPromptOverlay', 'imgLightbox', 'callPicker'].some(function(id){
+    var el = document.getElementById(id);
+    return el && el.style.display !== 'none';
+  });
+}
+function _chatIntroMaybe(tries){
+  tries = tries || 0;
+  try { if (localStorage.getItem(CHAT_INTRO_KEY)) return; } catch(e) { return; }
+  if (!_chatTok()) return;                  // الضيف: تطلعله بعد ما يسجّل دخول ويفتح التطبيق
+  if (_chatIntroBusy()) {
+    if (tries < 40) setTimeout(function(){ _chatIntroMaybe(tries + 1); }, 3000);
+    return;
+  }
+  try { localStorage.setItem(CHAT_INTRO_KEY, '1'); } catch(e) {}
+  openChat();
+  var h = new Date().getHours();
+  var greet = (h >= 4 && h < 12) ? 'صباح الخير ☀️' : 'مساء الخير 🌙';
+  var gift = '';
+  try {
+    if (typeof WALLET !== 'undefined' && WALLET.balance > 0) {
+      gift = '<div class="ci-gift" onclick="openWalletSheet()">🎁 وبمحفظتك <b>' + _fmtIQD(WALLET.balance) +
+             ' د.ع</b> هدية — تنخصم من طلبك الجاي</div>';
+    }
+  } catch(e) {}
+  var box = document.createElement('div');
+  box.id = 'chatIntro';
+  box.className = 'chat-intro';
+  box.innerHTML =
+    '<button class="ci-x" onclick="_chatIntroClose()" aria-label="إغلاق">✕</button>' +
+    '<div class="ci-big">' + greet + '</div>' +
+    '<div class="ci-t">صار تگدر تراسلنا من التطبيق مباشرة 💬</div>' +
+    '<div class="ci-s">اكتب سؤالك، أو صوّر القطعة الي تحتاجها ودزها — ونرد عليك هنا بأسرع وقت.</div>' +
+    gift +
+    '<button class="ci-go" onclick="_chatIntroClose(true)">اكتبلنا هسه ✍️</button>';
+  var sheet = document.querySelector('#chatSheet .bsheet');
+  if (sheet) sheet.appendChild(box);
+}
+function _chatIntroClose(focus){
+  var b = document.getElementById('chatIntro');
+  if (b) b.remove();
+  if (focus) { try { document.getElementById('chatInput').focus(); } catch(e) {} }
+}
+setTimeout(_chatIntroMaybe, 5000);
+
+
+/* 💬 الاستفسار عن طلب ← الدردشة (مو واتساب)، ورقم الطلب مكتوب جاهز.
+   الي ما مسجّل دخول (ماكو دردشة إله) يروح للواتساب مثل قبل. */
+var CHAT_DRAFT = '';
+function chatAboutOrder(code){
+  if (!_chatTok()) {
+    var o = (typeof _allOrdersCache !== 'undefined' && _allOrdersCache || []).find(function(x){ return (x.orderId || '-') === code; });
+    try { if (o) { window.open(_orderWaUrl(o), '_blank'); return; } } catch(e) {}
+    openWhatsApp('السلام عليكم، أريد الاستفسار عن ' + (code ? 'طلبي ' + code : 'طلباتي'));
+    return;
+  }
+  try { closeOrderDetail(); } catch(e) {}
+  CHAT_DRAFT = code ? ('بخصوص طلبي \u2066' + code + '\u2069: ') : 'بخصوص طلباتي: ';
+  openChat();
+}
 // ═══ Contact System (WhatsApp + Phone) ═══
 // Primary WhatsApp number for direct contextual messages
 var AMWAJ_PRIMARY_WA = '9647709000160';
@@ -7116,6 +8035,9 @@ function _saveNotifs(arr) {
 
 function addNotification(notif) {
   var arr = _getNotifs();
+  // 🔁 نفس الإشعار وصل مرتين بنفس الدقيقة (من التطبيق ومن عامل الخدمة) — نحفظه مرة وحدة
+  var _t = notif.title || 'إشعار', _b = notif.body || '';
+  if (arr.some(function(n){ return n.title === _t && n.body === _b && Date.now() - (n.timestamp || 0) < 60000; })) return;
   var item = {
     id: Date.now() + '_' + Math.random().toString(36).slice(2, 7),
     title: notif.title || 'إشعار',
@@ -7124,13 +8046,54 @@ function addNotification(notif) {
     orderId: notif.orderId || '',
     target: notif.target || '',
     url: notif.url || '',
-    timestamp: Date.now(),
+    timestamp: Number(notif.timestamp) || Date.now(),
     read: false
   };
   arr.unshift(item);
   _saveNotifs(arr);
   updateBellBadge(true);
 }
+
+
+/* 📥 سجل الإشعارات من السيرفر (ملف ١٢٦)
+   قبل: الإشعار ينحفظ بالمركز بس إذا التطبيق مفتوح وقت ما يوصل.
+   هسه: نسحب من السيرفر كل ما ينفتح التطبيق أو يرجع للواجهة، ونضيف
+   الناقص. والي انضاف أصلاً (وصل والتطبيق مفتوح) ما يتكرر. */
+function _inboxKey(){ return _notifKey() + '_srv'; }
+var _inboxBusy = false;
+async function inboxSync(){
+  var tok = ''; try { tok = getCustomerToken(); } catch(e) {}
+  if (!tok || _inboxBusy) return;
+  _inboxBusy = true;
+  try {
+    var after = Number(localStorage.getItem(_inboxKey()) || 0);
+    var r = await sbRpc('app_inbox', { p_token: tok, p_after: after });
+    if (!r || r.ok !== true || !r.items || !r.items.length) return;
+    var arr = _getNotifs(), added = false, now = Date.now();
+    r.items.forEach(function(it){
+      var ts = new Date(it.at).getTime() || now;
+      var dup = arr.find(function(n){
+        // نفس الإشعار انضاف قبل (وصل والتطبيق مفتوح، أو من عامل الخدمة بعد ما وصل) — نربطه بدل ما نكرره
+        return !n.srv && n.title === it.title && n.body === it.body && (n.timestamp || 0) >= ts - 5 * 60000;
+      });
+      if (dup) { dup.srv = it.id; return; }
+      if (arr.some(function(n){ return n.srv === it.id; })) return;
+      arr.push({ id: 'srv_' + it.id, srv: it.id, title: it.title || 'إشعار', body: it.body || '',
+                 type: it.type || 'general', orderId: it.orderId || '', target: '', url: '',
+                 timestamp: ts, read: (now - ts) > 86400000 });   // الأقدم من يوم ينعد مقروء
+      added = true;
+    });
+    arr.sort(function(a, b){ return (b.timestamp || 0) - (a.timestamp || 0); });
+    _saveNotifs(arr);
+    localStorage.setItem(_inboxKey(), String(r.items[r.items.length - 1].id));
+    updateBellBadge(added);
+    var ns = document.getElementById('notificationsSheet');
+    if (ns && ns.classList.contains('open')) renderNotifications();
+  } catch(e) { /* المرة الجاية */ }
+  finally { _inboxBusy = false; }
+}
+setTimeout(inboxSync, 2500);
+document.addEventListener('visibilitychange', function(){ if (!document.hidden) inboxSync(); });
 
 function updateBellBadge(animate) {
   var badge = document.getElementById('bellBadge');
@@ -7236,6 +8199,7 @@ function renderNotifications() {
 function openNotificationsSheet() {
   // جيب الإشعارات اللي وصلت لما الموقع كان مغلق
   try { syncMissedNotifications(); } catch(e) {}
+  try { inboxSync(); } catch(e) {}      // 📥 ملف ١٢٦: الي وصلت والتطبيق مسكّر
   setTimeout(function(){
     renderNotifications();
   }, 300);
@@ -7457,8 +8421,11 @@ async function setupPushNotifications() {
       // 💾 احفظ في مركز الإشعارات داخل التطبيق
       try {
         const d = notification.data || {};
-        const title = notification.title || d._title || 'إشعار جديد';
+        const title = d._title || notification.title || 'إشعار جديد';   // _title = الحدث (فوقه صار اسم المحل)
         const body  = notification.body  || d._body  || '';
+        // 💬 رد بالدردشة: ما ينحفظ بمركز الإشعارات — المحادثة نفسها هي السجل
+        if (d.type === 'chat') { _chatOnPush(title, body); return; }
+        if (d.type === 'wallet' || d.type === 'tier') walletLoad(true);   // 👛
         addNotification({
           title: title,
           body:  body,
@@ -7476,10 +8443,12 @@ async function setupPushNotifications() {
     PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
       console.log('🖱️ Notification clicked:', action);
       const data = action.notification.data || {};
+      if (data.type === 'chat') { setTimeout(function(){ openChat(); }, 400); return; }   // 💬
+      if (data.type === 'wallet' || data.type === 'tier') { setTimeout(function(){ openWalletSheet(); }, 400); }   // 👛
       // 💾 احفظ في مركز الإشعارات (إذا الإشعار جاي والتطبيق مغلق)
       try {
         addNotification({
-          title: action.notification.title || data._title || 'إشعار',
+          title: data._title || action.notification.title || 'إشعار',
           body:  action.notification.body  || data._body  || '',
           type:  data.type    || 'general',
           orderId: data.orderId || '',
@@ -7516,7 +8485,7 @@ async function setupPushNotifications() {
 }
 
 // Toast لإشعار داخل التطبيق
-function showPushToast(title, body) {
+function showPushToast(title, body, onTap) {
   const t = document.createElement('div');
   t.style.cssText = 'position:fixed;top:20px;left:12px;right:12px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;padding:14px 18px;border-radius:14px;font-family:Tajawal,sans-serif;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.3);animation:slideDown 0.3s;cursor:pointer;';
   t.innerHTML =
@@ -7528,7 +8497,7 @@ function showPushToast(title, body) {
       '</div>' +
       '<div style="font-size:18px;opacity:0.8;cursor:pointer;" onclick="event.stopPropagation();this.parentElement.parentElement.remove();">✕</div>' +
     '</div>';
-  t.onclick = function() { t.remove(); };
+  t.onclick = function() { t.remove(); if (onTap) onTap(); };
   document.body.appendChild(t);
   setTimeout(() => { if (t.parentElement) t.remove(); }, 6000);
 }
@@ -7787,6 +8756,8 @@ async function proceedWithWebPushSetup() {
       const notif = (payload && payload.notification) || {};
       const title = notif.title || d._title || 'إشعار جديد';
       const body  = notif.body  || d._body  || '';
+      if (d.type === 'chat') { _chatOnPush(title, body); return; }   // 💬
+      if (d.type === 'wallet' || d.type === 'tier') walletLoad(true);   // 👛
       
       // احفظ في مركز الإشعارات
       try {
@@ -7824,6 +8795,8 @@ function handleNotificationClickData(data) {
   try {
     const type = data.type || 'general';
     const orderId = data.orderId || '';
+    if (type === 'chat') { if (typeof openChat === 'function') openChat(); return; }   // 💬
+    if (type === 'wallet' || type === 'tier') { if (typeof openWalletSheet === 'function') openWalletSheet(); return; }   // 👛
     
     if (type === 'admin_new_order' || type === 'admin_order_cancelled') {
       // للأدمن: افتح لوحة التحكم (صفحة مستقلة)
@@ -8205,7 +9178,8 @@ function syncMissedNotifications() {
               type: item.type,
               orderId: item.orderId,
               target: item.target,
-              url: item.url
+              url: item.url,
+              timestamp: item.timestamp   // وقت وصوله الحقيقي، مو وقت فتح التطبيق
             });
           } catch(e) {}
         });
@@ -8308,6 +9282,7 @@ function renderAccountSheet() {
         </div>
       </div>
 
+      ${_walletCardHtml()}
       <div class="profile-menu">
 
         <div class="profile-menu-group">
@@ -8329,6 +9304,12 @@ function renderAccountSheet() {
         </div>
 
         <div class="profile-menu-group">
+          <button class="profile-menu-item" onclick="openChat()">
+            <div class="profile-menu-icon pm-icon-contact">💬</div>
+            <div class="profile-menu-label">دردشة مع امواج</div>
+            ${_chatBadgeHtml('acctChatBadge')}
+            <span class="profile-menu-arrow">‹</span>
+          </button>
           <button class="profile-menu-item" onclick="openContactSheet();">
             <div class="profile-menu-icon pm-icon-contact">📞</div>
             <div class="profile-menu-label">تواصل معنا</div>
@@ -8946,7 +9927,7 @@ var _isNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && w
    يحسب نفسه أقدم مما هو، فلو انحدّث الرقم باللوحة يطلع طلب تحديث
    إجباري ما ينتهي أبداً ويقفّل الزبون برّا.
    يفحصه سكربت «فحص رقم النسخة.py» قبل كل بناء. */
-var APP_VERSION = '1.0.21';
+var APP_VERSION = '1.0.23';
 
 // 🔢 رقم الإصدار يظهر بس بالتطبيق المثبت (مو بالموقع، لأنه دايماً آخر نسخة وما يحتاج رقم)
 (function(){
