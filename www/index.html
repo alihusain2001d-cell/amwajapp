@@ -1025,6 +1025,7 @@ body {
 #chatSheet .bsheet { background: #EAF2F8; }
 .chat-list {
   flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;   /* آخر القائمة ما يسحب الشاشة كلها */
   padding: 12px 12px 10px; display: flex; flex-direction: column; gap: 6px;
 }
 .chat-hello {
@@ -3564,6 +3565,57 @@ function _showAppleNotices(){
 document.addEventListener('DOMContentLoaded', _showAppleNotices);
 setTimeout(_showAppleNotices, 1500);
 
+
+/* ═══ ✏️ تعديل طلب (ملف ١٣١) ═══
+   مواد الطلب ترجع للسلة، الزبون يعدّل ويأكد، والسيرفر يلغي القديم ويسوي
+   الجديد بنفس اللحظة. الأسعار من الكاتلوك مثل أي طلب. يصير بس والطلب
+   «ينتظر» (أول ١٥ دقيقة بكربلاء). */
+var EDIT_ORDER = '';
+try { EDIT_ORDER = localStorage.getItem('amwaj_edit_order') || ''; } catch(e) {}
+function _setEditOrder(code){
+  EDIT_ORDER = code || '';
+  try { if (EDIT_ORDER) localStorage.setItem('amwaj_edit_order', EDIT_ORDER); else localStorage.removeItem('amwaj_edit_order'); } catch(e) {}
+}
+function editOrder(orderId){
+  var o = (_allOrdersCache || []).find(function(x){ return (x.orderId || '-') === orderId; });
+  if (!o || !_orderIsCancellable(o)) { alert('الطلب ما عاد ينعدل — صار بالطريق أو مر وقت التعديل.'); return; }
+  if (cart.length && !confirm('سلتك بيها مواد — راح تنشال وتنحط مواد الطلب ' + orderId + ' بدالها. نكمل؟')) return;
+  var pct = (typeof warrantyPct === 'function') ? warrantyPct() : 0;
+  cart = (o.items || []).map(function(it){
+    var live = (it.code && CATALOG_BY_CODE) ? CATALOG_BY_CODE[it.code] : null;
+    var item = live ? JSON.parse(JSON.stringify(live)) : {};
+    var paid = Number(String(it.price || '').replace(/[^0-9]/g, '')) || 0;
+    // سعر الطلب بيه زيادة الضمان — السلة تحتاج السعر الأساسي (السلة تضيف الضمان بنفسها)
+    var base = live ? live.price : ((it.hasWarranty && pct > 0) ? Math.round(paid / (1 + pct / 100)) : paid);
+    item.code = it.code || item.code || '';
+    item.name = it.name || item.name || '';
+    item.brand = it.brand || item.brand || '';
+    item.type = it.type || item.type || '';
+    if (it.notes) item.notes = it.notes;
+    item.price = base;
+    item.quantity = Number(it.quantity) || 1;
+    item.itemType = it.itemType || item.itemType || 'parts';
+    item.hasWarranty = !!it.hasWarranty;
+    return item;
+  });
+  saveCart();
+  _setEditOrder(orderId);
+  closeOrderDetail();
+  try { closeSheet('ordersSheet'); } catch(e) {}
+  setTimeout(function(){ openCartSheet(); }, 250);
+}
+function cancelEditOrder(){
+  if (!confirm('تلغي التعديل؟ طلبك ' + EDIT_ORDER + ' يبقى مثل ما هو، والسلة تتفرّغ.')) return;
+  _setEditOrder('');
+  cart = []; saveCart(); renderCart();
+}
+function editOrderBanner(){
+  if (!EDIT_ORDER) return '';
+  return '<div style="background:#FEF3C7;border:1px solid #FCD34D;color:#92400E;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:14px;line-height:1.7">' +
+    '✏️ <b>تعدّل الطلب ' + sanitize(EDIT_ORDER) + '</b><br>زيد أو نقّص أو احذف، واضغط <b>إرسال</b> — الطلب القديم ينلغى وينحط هذا بداله.' +
+    '<div><button onclick="cancelEditOrder()" style="margin-top:6px;background:none;border:1px solid #D97706;color:#92400E;border-radius:8px;padding:4px 10px;font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer">إلغاء التعديل</button></div></div>';
+}
+
 function sanitize(str) {
   if (!str) return '';
   return String(str)
@@ -4742,7 +4794,7 @@ function showCartToast(name) {
 }
 
 function removeFromCart(index) { cart.splice(index, 1); saveCart(); renderCart(); }
-function clearCart() { if (confirm('هل تريد إفراغ السلة؟')) { cart = []; saveCart(); renderCart(); } }
+function clearCart() { if (confirm('هل تريد إفراغ السلة؟')) { cart = []; saveCart(); _setEditOrder(''); renderCart(); } }
 
 function getDeliveryFee(province) {
   if (!province) return null;
@@ -4781,7 +4833,7 @@ function renderCart() {
   if (_skipCartSync) _skipCartSync = false; else syncCartWithCatalog();
 
   let total = 0;
-  let html = cartChangesBanner();  // شريط يشرح شنو تغيّر (يطلع بس إذا أكو تغيير)
+  let html = editOrderBanner() + cartChangesBanner();  // ✏️ تعديل طلب + شريط شنو تغيّر
 
   cart.forEach((item, index) => {
     const basePrice = Number(String(item.price || '').replace(/[^0-9]/g, '')) || 0;
@@ -5033,6 +5085,7 @@ async function submitOrder() {
       try {
         var _ord = await sbFn('placeorder', {
           token: guest ? null : getCustomerToken(),
+          replaces: (!guest && EDIT_ORDER) ? EDIT_ORDER : undefined,   // ✏️ ملف ١٣١
           payload: {
             name: name, shop: shop, phone: phone, address: fullAddress,
             province: province, district: district, districtId: districtId,
@@ -5061,7 +5114,10 @@ async function submitOrder() {
 
       // ✅ اعرض النجاح
       {
-        result.innerHTML = '<div class="result success">✅ تم إرسال الطلب بنجاح!<br>سيتم تجهيزها قريباً 📦</div>';
+        result.innerHTML = (_ord && _ord.replaced)
+          ? '<div class="result success">✏️ تم تعديل الطلب!<br>صار رقمه ' + sanitize(_ord.orderId || '') + ' (بدل ' + sanitize(_ord.replaced) + ')</div>'
+          : '<div class="result success">✅ تم إرسال الطلب بنجاح!<br>سيتم تجهيزها قريباً 📦</div>';
+        _setEditOrder('');
         // 👛 شنو صار بالمحفظة
         try {
           var _wm = [];
@@ -6144,7 +6200,7 @@ function renderOrdersList() {
   filtered = filtered.filter(function(o){ return _orderInDateRange(o, _ordersDateFilter); });
 
   if (!filtered.length) {
-    var labelMap = { all: 'لا توجد طلبات', pending: 'لا توجد طلبات قيد المراجعة', picked: 'لا توجد طلبات قيد التجهيز', delivered: 'لا توجد طلبات مسلمة', cancelled: 'لا توجد طلبات ملغية' };
+    var labelMap = { all: 'لا توجد طلبات', pending: 'لا توجد طلبات قيد المراجعة', picked: 'لا توجد طلبات بالطريق', delivered: 'لا توجد طلبات مسلمة', cancelled: 'لا توجد طلبات ملغية' };
     var dateHint = _ordersDateFilter !== 'all' ? '<div style="color:var(--muted);font-size:13px;margin-top:8px;">جرّب تبويب "الكل" لعرض الطلبات الأقدم</div>' : '';
     listDiv.innerHTML = '<div style="padding:40px 20px;text-align:center;"><div style="font-size:48px;margin-bottom:10px;opacity:0.5;">📦</div><div style="color:var(--muted);font-size:15px;font-weight:600;">' + (labelMap[_ordersFilter] || 'لا توجد طلبات') + '</div>' + dateHint + '</div>';
     return;
@@ -6215,7 +6271,7 @@ var PRIME_STEP_TEXT = {
 
 function _orderStatusMeta(o) {
   var m = { text: 'تم استلام طلبك', cls: 'pill-pending', icon: '✅' };
-  if (o.status === 'picked')         m = { text: 'قيد التجهيز', cls: 'pill-picked',    icon: '📦' };
+  if (o.status === 'picked')         m = { text: 'بالطريق',     cls: 'pill-picked',    icon: '🚚' };   // نفس اللوحة وإشعار «طلبك بالطريق»
   else if (o.status === 'delivered') m = { text: 'تم التسليم',  cls: 'pill-delivered', icon: '✅' };
   else if (o.status === 'cancelled') m = { text: 'ملغي',        cls: 'pill-cancelled', icon: '❌' };
 
@@ -6362,6 +6418,9 @@ function openOrderDetail(orderId) {
     return _orderItemHtml(it);
   }).join('') || '<div style="text-align:center;color:var(--muted);font-size:13px;padding:14px;">لا توجد منتجات</div>';
 
+  var editBtn = (_orderIsCancellable(o) && !isGuest())
+    ? '<button onclick="editOrder(\'' + orderId + '\')" style="width:100%;padding:12px;border:none;border-radius:10px;background:#F59E0B;color:#fff;font-size:14.5px;font-weight:800;font-family:Tajawal,sans-serif;cursor:pointer;margin-top:8px;">✏️ تعديل الطلب</button>'
+    : '';
   var cancelBtn = _orderIsCancellable(o)
     ? '<button onclick="closeOrderDetail();cancelOrder(\'' + orderId + '\')" style="width:100%;padding:12px;border:none;border-radius:10px;background:#EF4444;color:#fff;font-size:14.5px;font-weight:800;font-family:Tajawal,sans-serif;cursor:pointer;margin-top:8px;">❌ إلغاء الطلب</button>'
     : '';
@@ -6407,7 +6466,7 @@ function openOrderDetail(orderId) {
 
         '<button onclick="chatAboutOrder(\'' + sanitize(String(o.orderId || '')) + '\')" class="order-wa-btn" ' +
           'style="display:block;width:100%;text-align:center;margin-top:12px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));font-family:Tajawal,sans-serif;">💬 استفسار عن هذا الطلب</button>' +
-        cancelBtn +
+        editBtn + cancelBtn +
       '</div>' +
     '</div>';
 
@@ -7382,6 +7441,7 @@ function chatStop(){
   clearInterval(CHAT.timer); CHAT.timer = null;
   var s = document.querySelector('#chatSheet .bsheet');
   if (s) { s.style.height = ''; s.style.transform = ''; }
+  _chatFit.h = 0; _chatFit.t = 0;
   var el = document.getElementById('chatSheet');
   if (el) el.classList.remove('kb');
   try { document.getElementById('chatInput').blur(); } catch(e) {}
@@ -7593,14 +7653,24 @@ async function chatSend(){
 /* ⌨️ الكيبورد: بالآيفون ما يصغّر الصفحة، يغطيها. فنقيس الجزء الي
    يبين فعلاً (visualViewport) ونخلي الدردشة بحجمه بالضبط — حتى
    خانة الكتابة تبقى فوق الكيبورد والرسائل ما تختفي وراه. */
+// نقيس مرة وحدة بكل فريم، ونغيّر بس إذا الحجم فعلاً تغيّر — قبل كانت
+// تعيد الحجم وتسحب لتحت ويا كل حركة إصبع، فالشاشة تهتز.
+var _chatFit = { h: 0, t: 0, raf: 0 };
 function chatFitViewport(){
+  if (_chatFit.raf) return;
+  _chatFit.raf = requestAnimationFrame(function(){ _chatFit.raf = 0; _chatFitNow(); });
+}
+function _chatFitNow(){
   var el = document.getElementById('chatSheet');
   var s = el && el.querySelector('.bsheet');
   var vv = window.visualViewport;
   if (!s) return;
-  if (!CHAT.open || !vv) { s.style.height = ''; s.style.transform = ''; return; }
-  s.style.height = Math.round(vv.height) + 'px';
-  s.style.transform = vv.offsetTop > 1 ? 'translateY(' + Math.round(vv.offsetTop) + 'px)' : '';
+  if (!CHAT.open || !vv) { s.style.height = ''; s.style.transform = ''; _chatFit.h = 0; _chatFit.t = 0; return; }
+  var h = Math.round(vv.height), t = vv.offsetTop > 1 ? Math.round(vv.offsetTop) : 0;
+  if (Math.abs(h - _chatFit.h) < 3 && t === _chatFit.t) return;   // ما تغيّر شي — لا نلمس الشاشة
+  _chatFit.h = h; _chatFit.t = t;
+  s.style.height = h + 'px';
+  s.style.transform = t ? 'translateY(' + t + 'px)' : '';
   el.classList.toggle('kb', vv.height < window.innerHeight - 120);
   if (CHAT.stick) { var b = document.getElementById('chatList'); if (b) b.scrollTop = b.scrollHeight; }
 }
@@ -7610,6 +7680,30 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', chatFitViewport);
   window.visualViewport.addEventListener('scroll', chatFitViewport);
 }
+
+/* 🔒 جوه الدردشة: بس قائمة الرسائل (وخانة الكتابة إذا طويلة) تنسحب.
+   السحب على الهيدر، أو بعد ما توصل لأول/آخر رسالة، كان يسحب الصفحة
+   كلها وياه (وويا الكيبورد بالآيفون تتحرك الشاشة كلها) — هذا الاهتزاز. */
+(function(){
+  var lastY = 0;
+  document.addEventListener('touchstart', function(e){
+    if (e.touches.length === 1) lastY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchmove', function(e){
+    if (!CHAT.open || e.touches.length !== 1) return;
+    var sheet = document.getElementById('chatSheet');
+    if (!sheet || !sheet.contains(e.target)) return;
+    var y = e.touches[0].clientY, dy = y - lastY;   // موجب = الإصبع نازل (يصعد للرسائل القديمة)
+    lastY = y;
+    var box = e.target.closest && e.target.closest('.chat-list, .chat-input');
+    if (box && box.scrollHeight > box.clientHeight + 1) {
+      var atTop = box.scrollTop <= 0;
+      var atBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 1;
+      if (dy === 0 || (dy > 0 && !atTop) || (dy < 0 && !atBottom)) return;   // سحب عادي داخل القائمة
+    }
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+})();
 
 // 🔴 العلامة الحمرة — رسائل من امواج ما انقرت
 function _chatBadgeHtml(id){
@@ -8038,9 +8132,10 @@ function _saveNotifs(arr) {
 
 function addNotification(notif) {
   var arr = _getNotifs();
-  // 🔁 نفس الإشعار وصل مرتين بنفس الدقيقة (من التطبيق ومن عامل الخدمة) — نحفظه مرة وحدة
+  // 🔁 نفس الإشعار ينضاف أكثر من مرة: لما يوصل والتطبيق مفتوح، ولما ينضغط، ومن السجل —
+  //    والضغطة ممكن تجي بعد دقايق. فنفس العنوان والنص خلال ١٠ دقايق = نفس الإشعار.
   var _t = notif.title || 'إشعار', _b = notif.body || '';
-  if (arr.some(function(n){ return n.title === _t && n.body === _b && Date.now() - (n.timestamp || 0) < 60000; })) return;
+  if (arr.some(function(n){ return n.title === _t && n.body === _b && Date.now() - (n.timestamp || 0) < 10 * 60000; })) return;
   var item = {
     id: Date.now() + '_' + Math.random().toString(36).slice(2, 7),
     title: notif.title || 'إشعار',
@@ -8138,6 +8233,7 @@ function _notifIconClass(type) {
   if (type === 'admin_new_order') return 'new-order';
   if (type === 'admin_order_cancelled') return 'cancelled';
   if (type === 'order_received') return 'new-order';
+  if (type === 'order_status' || type === 'order_prime_update') return 'new-order';
   if (type === 'order_delivered') return 'delivered';
   if (type === 'order_cancelled') return 'cancelled';
   if (type === 'account_approved') return 'approved';
@@ -8149,6 +8245,10 @@ function _notifIcon(type) {
   if (type === 'admin_new_order')       return '🛒';
   if (type === 'admin_order_cancelled') return '🚨';
   if (type === 'order_received')        return '✅';
+  if (type === 'order_status')          return '📦';
+  if (type === 'order_prime_update')    return '🚚';
+  if (type === 'wallet')                return '👛';
+  if (type === 'tier')                  return '⭐';
   if (type === 'order_delivered')       return '✅';
   if (type === 'order_cancelled')       return '❌';
   if (type === 'account_approved')      return '🎉';
@@ -8230,23 +8330,8 @@ function handleNotifClick(id) {
   // افتح المكان المناسب
   closeSheet('notificationsSheet');
   setTimeout(function() {
-    // 🛒 إشعارات الأدمن عن الطلبات → افتح لوحة التحكم + طلبات + مرر للطلب
-    if (n.type === 'admin_new_order' || n.type === 'admin_order_cancelled') {
-      /* ما نحتاج نفحص إذا هو أدمن: السيرفر ما يرسل هالنوع إلا
-         لأجهزة الإدارة أصلاً. فلو وصله، هو منهم. */
-      if (typeof openAdminPanel === 'function') openAdminPanel();
-    }
-    // 📦 إشعارات الزبون عن حالة طلبه → افتح طلباتي + مرر للطلب
-    else if (n.type === 'order_delivered' || n.type === 'order_cancelled' || n.type === 'order_received') {
-      if (typeof openOrdersSheet === 'function') {
-        openOrdersSheet();
-        if (n.orderId && typeof scrollToOrderCard === 'function') {
-          setTimeout(function(){ scrollToOrderCard(n.orderId); }, 800);
-        }
-      }
-    }
     // 📢 إعلان → اعرض المودال (مع الرابط والزر إذا موجود)
-    else if (n.type === 'broadcast') {
+    if (n.type === 'broadcast') {
       if (typeof showBroadcastModal === 'function') {
         showBroadcastModal({
           id: n.id,
@@ -8257,9 +8342,9 @@ function handleNotifClick(id) {
         });
       }
     }
-    // 🔗 أي إشعار ثاني فيه رابط خارجي → افتح الرابط مباشرة
-    else if (n.url) {
-      try { window.open(n.url, '_blank'); } catch(e) { location.href = n.url; }
+    // 🧭 الباقي (طلبات، محفظة، دردشة، إدارة، روابط) — نفس توجيه ضغطة الإشعار
+    else {
+      handleNotificationClickData(n);
     }
   }, 250);
 }
@@ -8447,7 +8532,6 @@ async function setupPushNotifications() {
       console.log('🖱️ Notification clicked:', action);
       const data = action.notification.data || {};
       if (data.type === 'chat') { setTimeout(function(){ openChat(); }, 400); return; }   // 💬
-      if (data.type === 'wallet' || data.type === 'tier') { setTimeout(function(){ openWalletSheet(); }, 400); }   // 👛
       // 💾 احفظ في مركز الإشعارات (إذا الإشعار جاي والتطبيق مغلق)
       try {
         addNotification({
@@ -8459,26 +8543,8 @@ async function setupPushNotifications() {
           url:     data.url     || ''
         });
       } catch(e) {}
-      // لو الإشعار عن طلب → افتح صفحة الطلبات
-      if (data.type === 'new_order' || data.type === 'order_status' || data.type === 'order_delivered' || data.type === 'order_cancelled' || data.type === 'order_received') {
-        if (typeof openOrdersSheet === 'function') openOrdersSheet();
-      } else if (data.type === 'admin_new_order' || data.type === 'admin_order_cancelled') {
-        if (typeof openAdminPanel === 'function') openAdminPanel();
-      } else if (data.type === 'account_approved') {
-        // ✅ انوافق على طلبه — نوديه مباشرة لشاشة الدخول ورقمه معبّى، حتى يسجل دخول بضغطة
-        setTimeout(function(){
-          try {
-            var _ph = (typeof _getKnownPhone === 'function') ? _getKnownPhone() : '';
-            var _inp = document.getElementById('loginPhone');
-            if (_inp && _ph) _inp.value = _ph;
-            showScreen('loginScreen');
-            var _res = document.getElementById('loginResult');
-            if (_res) _res.innerHTML = '<div class="result success">✅ تمت الموافقة على طلبك! اضغط "دخول" للمتابعة</div>';
-          } catch(e){}
-        }, 400);
-      } else if (data.type === 'broadcast' && data.target) {
-        setTimeout(function(){ navigateToTarget(data.target); }, 400);
-      }
+      // 🧭 نفس توجيه المتصفح ومركز الإشعارات (طلب ← طلباتي ويأشّر عليه، محفظة، إعلان…)
+      setTimeout(function(){ handleNotificationClickData(data); }, 400);
     });
 
     console.log('✅ Push notifications setup complete');
@@ -8793,27 +8859,57 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// دالة موحّدة للتنقّل حسب نوع الإشعار
+// 🧭 دالة وحدة للتنقّل حسب نوع الإشعار — تستعملها ضغطة الإشعار بالتطبيق،
+//    وبالمتصفح، وبمركز الإشعارات. أي نوع جديد ينضاف هنا بس.
+var ORDER_NOTIF_TYPES = ['new_order', 'order_status', 'order_delivered', 'order_cancelled',
+                         'order_received', 'order_prime_update'];
+var ADMIN_NOTIF_PAGE  = { admin_new_customer: 'cust', admin_new_order: 'ord',
+                          admin_order_cancelled: 'ord', admin_chat: 'chat' };
 function handleNotificationClickData(data) {
   try {
+    data = data || {};
     const type = data.type || 'general';
     const orderId = data.orderId || '';
     if (type === 'chat') { if (typeof openChat === 'function') openChat(); return; }   // 💬
     if (type === 'wallet' || type === 'tier') { if (typeof openWalletSheet === 'function') openWalletSheet(); return; }   // 👛
-    
-    if (type === 'admin_new_order' || type === 'admin_order_cancelled') {
-      // للأدمن: افتح لوحة التحكم (صفحة مستقلة)
-      if (typeof openAdminPanel === 'function') openAdminPanel();
-    } else if (type === 'new_order' || type === 'order_status' || type === 'order_delivered' || type === 'order_cancelled' || type === 'order_received') {
-      // للزبون: افتح طلباتي
+
+    if (type.indexOf('admin_') === 0) {
+      // 🧑‍💼 للإدارة: لوحة التحكم على الصفحة الصحيحة (طلب تسجيل ← الزبائن…)
+      var pg = ADMIN_NOTIF_PAGE[type] || 'ord';
+      if (pg === 'chat' && data.phone) pg += ':' + encodeURIComponent(data.phone);   // محادثة الزبون نفسه
+      if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+        window.open(ADMIN_PANEL_URL + '#' + pg, '_blank');
+      } else {
+        location.href = '/admin.html#' + pg;
+      }
+    } else if (ORDER_NOTIF_TYPES.indexOf(type) !== -1) {
+      // 📦 للزبون: طلباتي، ونأشّر على الطلب نفسه إذا نعرفه
       if (typeof openOrdersSheet === 'function') {
         openOrdersSheet();
         if (orderId) setTimeout(function(){ scrollToOrderCard(orderId); }, 800);
       }
-    } else if (type === 'broadcast' && data.target) {
-      setTimeout(function(){
-        if (typeof navigateToTarget === 'function') navigateToTarget(data.target);
-      }, 400);
+    } else if (type === 'account_approved') {
+      // ✅ انوافق على حسابه: إذا بعده مو داخل، شاشة الدخول ورقمه معبّى
+      var _tok = ''; try { _tok = getCustomerToken(); } catch(e) {}
+      if (!_tok) {
+        var _ph = (typeof _getKnownPhone === 'function') ? _getKnownPhone() : '';
+        var _inp = document.getElementById('loginPhone');
+        if (_inp && _ph) _inp.value = _ph;
+        showScreen('loginScreen');
+        var _res = document.getElementById('loginResult');
+        if (_res) _res.innerHTML = '<div class="result success">✅ تمت الموافقة على طلبك! اضغط "دخول" للمتابعة</div>';
+      }
+    } else if (type === 'broadcast') {
+      // 📢 إعلان: القسم الي حدده، أو الرابط، أو يبقى بالرئيسية
+      if (data.target) {
+        setTimeout(function(){
+          if (typeof navigateToTarget === 'function') navigateToTarget(data.target);
+        }, 400);
+      } else if (data.url) {
+        try { window.open(data.url, '_blank'); } catch(e) { location.href = data.url; }
+      }
+    } else if (data.url) {
+      try { window.open(data.url, '_blank'); } catch(e) { location.href = data.url; }
     }
   } catch(e) { console.error('handleNotificationClickData error:', e); }
 }
@@ -8963,6 +9059,7 @@ function _pullToRefreshAction() {
 
   document.addEventListener('touchstart', function(e) {
     if (refreshing || e.touches.length !== 1) return;
+    if (e.target && e.target.closest && e.target.closest('#chatSheet')) { pulling = false; return; }   // 💬 الدردشة إلها سحبها
     scrollEl = findScrollable(e.target);
     if (scrollTopOf(scrollEl) > 0) { scrollEl = null; return; }
     startX = e.touches[0].clientX;
@@ -9930,7 +10027,7 @@ var _isNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && w
    يحسب نفسه أقدم مما هو، فلو انحدّث الرقم باللوحة يطلع طلب تحديث
    إجباري ما ينتهي أبداً ويقفّل الزبون برّا.
    يفحصه سكربت «فحص رقم النسخة.py» قبل كل بناء. */
-var APP_VERSION = '1.0.23';
+var APP_VERSION = '1.0.24';
 
 // 🔢 رقم الإصدار يظهر بس بالتطبيق المثبت (مو بالموقع، لأنه دايماً آخر نسخة وما يحتاج رقم)
 (function(){
