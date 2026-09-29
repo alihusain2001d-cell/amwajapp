@@ -6347,6 +6347,8 @@ function _orderMoney(o) {
 // ── يمكن الإلغاء خلال 20 دقيقة من إنشاء الطلب وفقط إذا قيد المراجعة ──
 function _orderIsCancellable(o) {
   if (o.status !== 'pending') return false;
+  // كربلاء (ملف ١٣٠/١٣٥): «ينتظر» = ينلغي وينعدل — حتى لو طلبه بالاستراحة أو بالليل وطال
+  if (/^\s*كربلاء/.test(String(o.address || ''))) return true;
   var t = _orderTimeOf(o);
   if (isNaN(t)) return false;
   return ((Date.now() - t) / 60000) < 20;
