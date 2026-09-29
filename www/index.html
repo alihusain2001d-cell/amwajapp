@@ -1156,6 +1156,12 @@ body {
 .summary-row.cb-row { color: #6D28D9; font-weight: 800; font-size: 13.5px; }
 
 /* 🍎 تنبيه القطع — بتطبيق الآيفون بس (رد أبل 1.1.6) */
+/* 🍎 نسخة الرئيسية: سطر وحد، والنص الكامل يفتح بالضغط */
+.apple-notice.mini { padding: 6px 12px; font-size: 12.5px; line-height: 1.6; cursor: pointer; }
+.apple-notice.mini .an-more { display: none; margin-top: 6px; font-size: 12.5px; }
+.apple-notice.mini.open .an-more { display: block; }
+.apple-notice.mini .an-toggle { text-decoration: underline; font-weight: 700; margin-inline-start: 4px; }
+.apple-notice.mini.open .an-head { display: none; }   /* مفتوح: النص الكامل يبدي بنفس الجملة */
 .apple-notice {
   background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E; border-radius: 12px;
   padding: 10px 12px; font-size: 13px; line-height: 1.7; margin: 0 0 12px;
@@ -3346,7 +3352,7 @@ input, textarea { -webkit-user-select:text !important; user-select:text !importa
       </div>
 
       <!-- Hero Banner -->
-      <div class="apple-notice" style="display:none;margin:0 16px 12px">⚠️ القطع المعروضة <b>ليست من صنع Apple</b> ولا معتمدة منها، وتركيبها قد <b>يلغي ضمان Apple</b> للجهاز. امواج مورّد قطع غيار لمحلات الصيانة، ولا تقدّم خدمة تصليح ولا تبيع أجهزة.<div dir="ltr" style="margin-top:4px;font-size:12px;opacity:.85">Parts are not made or certified by Apple. Installing them may void the Apple warranty. Amwaj supplies spare parts to repair shops; it does not offer repair services or sell devices.</div></div>
+      <div class="apple-notice mini" style="display:none;margin:0 16px 10px" onclick="this.classList.toggle('open')"><span class="an-head">⚠️ القطع المعروضة <b>ليست من صنع Apple</b><span class="an-toggle">التفاصيل</span></span><div class="an-more">⚠️ القطع المعروضة <b>ليست من صنع Apple</b> ولا معتمدة منها، وتركيبها قد <b>يلغي ضمان Apple</b> للجهاز. امواج مورّد قطع غيار لمحلات الصيانة، ولا تقدّم خدمة تصليح ولا تبيع أجهزة.<div dir="ltr" style="margin-top:4px;font-size:12px;opacity:.85">Parts are not made or certified by Apple. Installing them may void the Apple warranty. Amwaj supplies spare parts to repair shops; it does not offer repair services or sell devices.</div></div></div>
       <div class="hero-banner" onclick="openContactSheet();" style="cursor:pointer;">
         <div class="hero-content">
           <div class="hero-eyebrow">🌊 أمواج للإلكترونيات</div>
