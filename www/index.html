@@ -7798,12 +7798,13 @@ async function _applyWholesale(r){
   if (!tok || !r) return;
   try {
     var w = await sbRpc('app_wholesale_prices', { p_token: tok });
-    if (!w || w.tier !== 'wholesale') return;
+    // ⭐ جملة، أو 🏷️ مفرق (ملف ١٤٨)، أو 🛒 زبون عادي (ملف ١٥٠ — سعر الفني + النسبة)
+    if (!w || (w.tier !== 'wholesale' && w.tier !== 'mufraq' && w.tier !== 'consumer')) return;
     var map = w.prices || {};
     var swap = function(i){ if (i && i.code && map[i.code]) { i.retail = i.price; i.price = map[i.code]; } };
     (r.screens || []).forEach(swap);
     Object.keys(r.parts || {}).forEach(function(k){ (r.parts[k] || []).forEach(swap); });
-    WHOLESALE_ON = true;
+    WHOLESALE_ON = (w.tier === 'wholesale');   // «أسعار جملة» تنكتب بس للجملة
   } catch(e) { /* نبقى على المفرد — السيرفر يحسب الصح وقت الطلب بكل الأحوال */ }
 }
 
@@ -9531,7 +9532,7 @@ function loadStatOrdersCount() {
    مو بس بصفحة المتجر. تنفتح بالمتصفح (بالآيفون كاباسيتور يحوّل أي
    window.open لسفاري؛ بالأندرويد نفس الطريقة الي يستعملها رابط بلي).
    ⚠️ إذا انضافت ميزة تجمع بيانات جديدة، حدّث privacy.html بالموقع. */
-var PRIVACY_URL = 'https://www.amwajmob.com/privacy.html';
+var PRIVACY_URL = 'https://amwajmob.iq/privacy.html';
 function openPrivacyPolicy() {
   try { window.open(PRIVACY_URL, '_system'); }
   catch (e) { location.href = PRIVACY_URL; }
@@ -9741,7 +9742,7 @@ function qrStop(){
 function qrLib(){
   if (window.jsQR) return Promise.resolve(true);
   var urls = ['jsqr.js',
-              'https://www.amwajmob.com/jsqr.js',
+              'https://amwajmob.iq/jsqr.js',
               'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'];
   return new Promise(function(res, rej){
     (function next(i){
@@ -10044,7 +10045,7 @@ var _isNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && w
    يحسب نفسه أقدم مما هو، فلو انحدّث الرقم باللوحة يطلع طلب تحديث
    إجباري ما ينتهي أبداً ويقفّل الزبون برّا.
    يفحصه سكربت «فحص رقم النسخة.py» قبل كل بناء. */
-var APP_VERSION = '1.0.26';
+var APP_VERSION = '1.0.27';
 
 // 🔢 رقم الإصدار يظهر بس بالتطبيق المثبت (مو بالموقع، لأنه دايماً آخر نسخة وما يحتاج رقم)
 (function(){
@@ -10346,7 +10347,7 @@ var _adminEditTarget = null;  // {name, sheetName, currentImg}
 /* 🛠️ لوحة التحكم الكاملة — انتقلت لصفحة مستقلة على نفس الموقع.
    اللوحة اللي داخل التطبيق كانت تقرا من النظام القديم، وبعد النقل
    ما عادت تشوف الطلبات ولا التسجيلات الجديدة. */
-const ADMIN_PANEL_URL = 'https://www.amwajmob.com/admin.html';
+const ADMIN_PANEL_URL = 'https://amwajmob.iq/admin.html';
 
 async function openAdminPanel() {
   window.open(ADMIN_PANEL_URL, '_blank');
