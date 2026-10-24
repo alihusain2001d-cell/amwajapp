@@ -162,7 +162,7 @@
         <div id="orderShopGroup" class="form-group"><label class="form-label">اسم المحل</label><input class="form-input" type="text" id="orderShop"></div>
         <div class="form-group"><label class="form-label">المحافظة</label><select class="form-input" id="orderProvince" onchange="renderCart(); _loadDistrictsInto('order', this.value)"><option value="" selected disabled>اختر المحافظة</option><option value="كربلاء">كربلاء</option><option value="بغداد">بغداد</option><option value="النجف">النجف</option><option value="بابل">بابل</option><option value="واسط">واسط</option><option value="ديالى">ديالى</option><option value="الأنبار">الأنبار</option><option value="صلاح الدين">صلاح الدين</option><option value="كركوك">كركوك</option><option value="نينوى">نينوى</option><option value="أربيل">أربيل</option><option value="دهوك">دهوك</option><option value="السليمانية">السليمانية</option><option value="البصرة">البصرة</option><option value="ميسان">ميسان</option><option value="ذي قار">ذي قار</option><option value="المثنى">المثنى</option><option value="القادسية">القادسية</option></select></div>
         <div class="form-group" style="position:relative;">
-          <label class="form-label">القضاء / الناحية</label>
+          <label class="form-label">الحي / القضاء / الناحية</label>
           <input class="form-input" type="text" id="orderDistrictSearch" placeholder="اختر المحافظة أولاً" disabled autocomplete="off" oninput="_filterDistrictOptions('order')" onfocus="_filterDistrictOptions('order')">
           <input type="hidden" id="orderDistrict">
           <div id="orderDistrictList" class="district-dropdown-list" style="display:none;"></div>
@@ -3270,7 +3270,7 @@ input, textarea { -webkit-user-select:text !important; user-select:text !importa
       <div class="form-group"><label class="form-label">اسم المحل</label><input class="form-input" type="text" id="regShop" placeholder="اسم محلك"></div>
       <div class="form-group"><label class="form-label">المحافظة</label><select class="form-input" id="regProvince" onchange="_loadDistrictsInto('reg', this.value)"><option value="" selected disabled>اختر المحافظة</option><option value="كربلاء">كربلاء</option><option value="بغداد">بغداد</option><option value="النجف">النجف</option><option value="بابل">بابل</option><option value="واسط">واسط</option><option value="ديالى">ديالى</option><option value="الأنبار">الأنبار</option><option value="صلاح الدين">صلاح الدين</option><option value="كركوك">كركوك</option><option value="نينوى">نينوى</option><option value="أربيل">أربيل</option><option value="دهوك">دهوك</option><option value="السليمانية">السليمانية</option><option value="البصرة">البصرة</option><option value="ميسان">ميسان</option><option value="ذي قار">ذي قار</option><option value="المثنى">المثنى</option><option value="القادسية">القادسية</option></select></div>
       <div class="form-group" style="position:relative;">
-        <label class="form-label">القضاء / الناحية</label>
+        <label class="form-label">الحي / القضاء / الناحية</label>
         <input class="form-input" type="text" id="regDistrictSearch" placeholder="اختر المحافظة أولاً" disabled autocomplete="off" oninput="_filterDistrictOptions('reg')" onfocus="_filterDistrictOptions('reg')">
         <input type="hidden" id="regDistrict">
         <div id="regDistrictList" class="district-dropdown-list" style="display:none;"></div>
@@ -4106,7 +4106,7 @@ async function _loadDistrictsInto(prefix, province) {
     }
     _districtsCurrentList[prefix] = list;
     searchInput.disabled = list.length === 0;
-    searchInput.placeholder = list.length ? '🔎 اكتب للبحث عن القضاء/الناحية...' : 'تعذر تحميل المناطق';
+    searchInput.placeholder = list.length ? '🔎 اكتب للبحث عن الحي/القضاء/الناحية...' : 'تعذر تحميل المناطق';
   } catch (e) {
     _districtsCurrentList[prefix] = [];
     searchInput.placeholder = 'تعذر تحميل المناطق';
@@ -4271,7 +4271,7 @@ async function submitRegistration() {
     if (_districtsLoading['reg']) {
       result.innerHTML = '<div class="result pending">⏳ جاري تحميل قائمة الأقضية، انتظر شوي وحاول مرة أخرى</div>';
     } else {
-      result.innerHTML = '<div class="result error">❌ يرجى اختيار القضاء/الناحية من القائمة (اضغط عليه من القائمة المنسدلة، مو بس تكتبه)</div>';
+      result.innerHTML = '<div class="result error">❌ يرجى اختيار الحي/القضاء/الناحية من القائمة (اضغط عليه من القائمة المنسدلة، مو بس تكتبه)</div>';
     }
     return;
   }
@@ -5039,7 +5039,7 @@ async function submitOrder() {
     if (_districtsLoading['order']) {
       result.innerHTML = '<div class="result pending">⏳ جاري تحميل قائمة الأقضية، انتظر شوي وحاول مرة أخرى</div>';
     } else {
-      result.innerHTML = '<div class="result error">❌ يرجى اختيار القضاء/الناحية من القائمة (اضغط عليه من القائمة المنسدلة، مو بس تكتبه)</div>';
+      result.innerHTML = '<div class="result error">❌ يرجى اختيار الحي/القضاء/الناحية من القائمة (اضغط عليه من القائمة المنسدلة، مو بس تكتبه)</div>';
     }
     return;
   }
@@ -9612,7 +9612,7 @@ async function openEditProfile() {
           }).join('') +
         '</select></div>' +
 
-      '<div class="form-group" style="position:relative"><label class="form-label">القضاء</label>' +
+      '<div class="form-group" style="position:relative"><label class="form-label">الحي / القضاء / الناحية</label>' +
         '<input class="form-input" type="text" id="edDistrictSearch" autocomplete="off"' +
           ' placeholder="اختر المحافظة أولاً"' +
           ' oninput="_filterDistrictOptions(&quot;ed&quot;)" onfocus="_filterDistrictOptions(&quot;ed&quot;)">' +
@@ -10045,7 +10045,7 @@ var _isNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && w
    يحسب نفسه أقدم مما هو، فلو انحدّث الرقم باللوحة يطلع طلب تحديث
    إجباري ما ينتهي أبداً ويقفّل الزبون برّا.
    يفحصه سكربت «فحص رقم النسخة.py» قبل كل بناء. */
-var APP_VERSION = '1.0.27';
+var APP_VERSION = '1.0.28';
 
 // 🔢 رقم الإصدار يظهر بس بالتطبيق المثبت (مو بالموقع، لأنه دايماً آخر نسخة وما يحتاج رقم)
 (function(){
