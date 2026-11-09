@@ -3233,6 +3233,49 @@ input, textarea { -webkit-user-select:text !important; user-select:text !importa
   text-align: center;
 }
 
+
+/* ══ 🔐 شاشات الدخول — ستايل رصين بالأزرق (ملف ١٥١) ══ */
+.auth-page{min-height:100vh;min-height:100dvh;padding:calc(26px + env(safe-area-inset-top)) 20px calc(30px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,#E0F2FE 0,#F0F9FF 170px,#F8FAFC 340px);box-sizing:border-box}
+.auth-page .auth-logo{width:96px;height:96px;margin:8px auto 18px;border-radius:28px;background:#fff;display:flex;
+  align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(14,165,233,.22);border:1px solid #E0F2FE}
+.auth-page .auth-logo img{width:70px}
+.auth-badge{width:88px;height:88px;border-radius:50%;margin:8px auto 18px;display:flex;align-items:center;justify-content:center;
+  font-size:40px;background:linear-gradient(135deg,#38BDF8,#0369A1);box-shadow:0 14px 30px rgba(14,165,233,.35);
+  border:5px solid #fff}
+.auth-page .auth-title{font-size:26px;font-weight:900;color:#0F172A;letter-spacing:-.3px;margin-bottom:8px}
+.auth-page .auth-sub{font-size:16px;color:#64748B;margin-bottom:24px}
+.auth-page .form-group{margin-bottom:16px}
+.auth-page .form-label{font-size:14.5px;font-weight:800;color:#334155;margin-bottom:7px}
+.auth-page .form-input{height:56px;border-radius:16px;background:#fff;border:1.5px solid #E2E8F0;font-size:17px;
+  padding:0 16px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.auth-page select.form-input{padding:0 14px}
+.auth-page .form-input:focus{border-color:#0EA5E9;box-shadow:0 0 0 4px rgba(14,165,233,.14)}
+.ai-wrap{position:relative}
+.ai-wrap .form-input{padding-right:50px}
+.ai-wrap .form-input.has-eye{padding-left:52px}
+.ai-ic{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:19px;opacity:.8;pointer-events:none}
+.ai-eye{position:absolute;left:6px;top:50%;transform:translateY(-50%);border:none;background:none;font-size:20px;
+  width:44px;height:44px;cursor:pointer;border-radius:12px}
+.ai-eye:active{background:#F1F5F9}
+.auth-page .form-btn{height:56px;border-radius:16px;font-size:18px;padding:0 14px;
+  background:linear-gradient(135deg,#0EA5E9,#0369A1);box-shadow:0 10px 24px rgba(14,165,233,.32)}
+.auth-page .form-btn.gray{background:#fff;color:#334155;border:1.5px solid #E2E8F0;box-shadow:none}
+.auth-page .form-btn.success-btn{background:#fff;color:#0369A1;border:1.5px solid #7DD3FC;box-shadow:none}
+.auth-page .form-btn:disabled{background:#CBD5E1;color:#fff;box-shadow:none}
+.auth-forgot-row{text-align:left;margin:-6px 0 16px}
+.auth-link{background:none;border:none;color:#0284C7;font-size:15px;font-weight:800;font-family:'Tajawal',sans-serif;
+  cursor:pointer;padding:6px 2px}
+.auth-hint{font-size:13.5px;color:#64748B;line-height:1.7;background:#F0F9FF;border:1px solid #E0F2FE;border-radius:14px;
+  padding:10px 12px;margin-top:14px}
+.auth-page .switch-link{border-top:1px dashed #CBD5E1}
+/* مربعات الرمز */
+.otp-boxes{display:flex;gap:8px;justify-content:center;direction:ltr;margin:4px 0 20px}
+.otp-boxes input{flex:1;min-width:0;max-width:52px;height:60px;border-radius:15px;border:1.5px solid #E2E8F0;background:#fff;
+  text-align:center;font-size:25px;font-weight:900;font-family:'Tajawal',sans-serif;color:#0F172A;outline:none;
+  padding:0;box-shadow:0 1px 2px rgba(15,23,42,.05);transition:all .15s}
+.otp-boxes input:focus{border-color:#0EA5E9;box-shadow:0 0 0 4px rgba(14,165,233,.15)}
+.otp-boxes input.filled{border-color:#7DD3FC;background:#F0F9FF}
 </style>
 
     <!-- Register — الخطوة 1: رقم الهاتف (نتحقق منه قبل ما نطلب أي بيانات، حتى ما يضيّع الزبون جهده لو رقمه مسجل مسبقاً) -->
@@ -3240,7 +3283,7 @@ input, textarea { -webkit-user-select:text !important; user-select:text !importa
       <div class="auth-logo"><img src="1646237145252.png" alt="" onerror="this.style.display='none'"></div>
       <div class="auth-title">تسجيل حساب جديد</div>
       <div class="auth-sub">أهلاً بك في امواج للإلكترونيات<br>أدخل رقم هاتفك للبدء</div>
-      <div class="form-group"><label class="form-label">رقم الهاتف</label><input class="form-input" type="tel" id="regPhoneStart" placeholder="07xxxxxxxxx"></div>
+      <div class="form-group"><label class="form-label">رقم الهاتف</label><div class="ai-wrap"><span class="ai-ic">📱</span><input class="form-input" type="tel" id="regPhoneStart" placeholder="07xxxxxxxxx" autocomplete="tel"></div></div>
       <button class="form-btn" id="btnRegStart" onclick="startRegistration()">متابعة</button>
       <div id="regStartResult"></div>
       <div class="switch-link"><p>عندك حساب مسبقاً؟</p><button class="form-btn gray" onclick="showScreen('loginScreen')">تسجيل الدخول</button></div>
@@ -3266,6 +3309,10 @@ input, textarea { -webkit-user-select:text !important; user-select:text !importa
         <div id="regPhoneDisplay" style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:12px;padding:13px 14px;font-size:17px;font-weight:800;color:#166534;" dir="ltr"></div>
         <input type="hidden" id="regPhone">
       </div>
+      <div class="form-group"><label class="form-label">كلمة السر</label>
+        <div class="ai-wrap"><span class="ai-ic">🔒</span><input class="form-input has-eye" type="password" id="regPassword" placeholder="6 أحرف أو أرقام على الأقل" autocomplete="new-password"><button type="button" class="ai-eye" onclick="pwEye(this)" aria-label="إظهار كلمة السر">👁️</button></div></div>
+      <div class="form-group"><label class="form-label">تأكيد كلمة السر</label>
+        <div class="ai-wrap"><span class="ai-ic">🔒</span><input class="form-input has-eye" type="password" id="regPassword2" placeholder="اكتبها مرة ثانية" autocomplete="new-password"><button type="button" class="ai-eye" onclick="pwEye(this)" aria-label="إظهار كلمة السر">👁️</button></div></div>
       <div class="form-group"><label class="form-label">الاسم الثلاثي</label><input class="form-input" type="text" id="regName" placeholder="مثال: أحمد محمد علي"></div>
       <div class="form-group"><label class="form-label">اسم المحل</label><input class="form-input" type="text" id="regShop" placeholder="اسم محلك"></div>
       <div class="form-group"><label class="form-label">المحافظة</label><select class="form-input" id="regProvince" onchange="_loadDistrictsInto('reg', this.value)"><option value="" selected disabled>اختر المحافظة</option><option value="كربلاء">كربلاء</option><option value="بغداد">بغداد</option><option value="النجف">النجف</option><option value="بابل">بابل</option><option value="واسط">واسط</option><option value="ديالى">ديالى</option><option value="الأنبار">الأنبار</option><option value="صلاح الدين">صلاح الدين</option><option value="كركوك">كركوك</option><option value="نينوى">نينوى</option><option value="أربيل">أربيل</option><option value="دهوك">دهوك</option><option value="السليمانية">السليمانية</option><option value="البصرة">البصرة</option><option value="ميسان">ميسان</option><option value="ذي قار">ذي قار</option><option value="المثنى">المثنى</option><option value="القادسية">القادسية</option></select></div>
@@ -3303,10 +3350,15 @@ input, textarea { -webkit-user-select:text !important; user-select:text !importa
     <div id="loginScreen" style="display:none;" class="auth-page">
       <div class="auth-logo"><img src="1646237145252.png" alt="" onerror="this.style.display='none'"></div>
       <div class="auth-title">تسجيل الدخول</div>
-      <div class="auth-sub">أهلاً بك مجدداً 🌊<br>أدخل رقم هاتفك للدخول</div>
-      <div class="form-group"><label class="form-label">رقم الهاتف</label><input class="form-input" type="tel" id="loginPhone" placeholder="07xxxxxxxxx"></div>
+      <div class="auth-sub">أهلاً بك مجدداً 🌊<br>ادخل برقم هاتفك وكلمة السر</div>
+      <div class="form-group"><label class="form-label">رقم الهاتف</label>
+        <div class="ai-wrap"><span class="ai-ic">📱</span><input class="form-input" type="tel" id="loginPhone" placeholder="07xxxxxxxxx" autocomplete="tel"></div></div>
+      <div class="form-group"><label class="form-label">كلمة السر</label>
+        <div class="ai-wrap"><span class="ai-ic">🔒</span><input class="form-input has-eye" type="password" id="loginPassword" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')checkLogin()"><button type="button" class="ai-eye" onclick="pwEye(this)" aria-label="إظهار كلمة السر">👁️</button></div></div>
+      <div class="auth-forgot-row"><button type="button" class="auth-link" onclick="forgotPassword()">نسيت كلمة السر؟</button></div>
       <button class="form-btn" id="btnLogin" onclick="checkLogin()">دخول</button>
       <div id="loginResult"></div>
+      <div class="auth-hint">🔑 أول مرة تدخل بكلمة سر؟ اكتب رقمك واضغط «دخول» — نرسلك رمز واتساب مرة وحدة، وبعدها تختار كلمة السر.</div>
       <div style="margin-top:12px;">
         <button onclick="enterAsGuest()" style="width:100%;background:none;border:1.5px dashed #CBD5E1;border-radius:10px;padding:11px;color:#64748B;font-size:18px;font-weight:600;font-family:Tajawal,sans-serif;cursor:pointer;">👁️ تصفح كضيف بدون تسجيل</button>
       </div>
@@ -3315,16 +3367,34 @@ input, textarea { -webkit-user-select:text !important; user-select:text !importa
 
     <!-- OTP Verification -->
     <div id="otpScreen" style="display:none;" class="auth-page">
-      <div class="auth-logo"><img src="1646237145252.png" alt="" onerror="this.style.display='none'"></div>
-      <div class="auth-title">تأكيد رقم الهاتف</div>
+      <div class="auth-badge">💬</div>
+      <div class="auth-title" id="otpTitle">تأكيد رقم الهاتف</div>
       <div class="auth-sub" id="otpSubText">أدخل الرمز المرسل عبر واتساب</div>
-      <div class="form-group"><label class="form-label">رمز التحقق</label><input class="form-input" type="tel" id="otpCode" placeholder="------" maxlength="6" inputmode="numeric" style="letter-spacing:8px;text-align:center;font-size:22px;"></div>
+      <input type="hidden" id="otpCode">
+      <div class="otp-boxes" id="otpBoxes">
+        <input type="tel" inputmode="numeric" autocomplete="one-time-code" aria-label="رقم 1"><input type="tel" inputmode="numeric" aria-label="رقم 2"><input type="tel" inputmode="numeric" aria-label="رقم 3"><input type="tel" inputmode="numeric" aria-label="رقم 4"><input type="tel" inputmode="numeric" aria-label="رقم 5"><input type="tel" inputmode="numeric" aria-label="رقم 6">
+      </div>
       <button class="form-btn" id="btnVerifyOtp" onclick="verifyOtpCode()">تأكيد</button>
       <div id="otpResult"></div>
       <div style="margin-top:12px;text-align:center;">
         <button id="btnResendOtp" onclick="resendOtp()" style="background:none;border:none;color:var(--primary);font-size:15px;font-weight:700;font-family:Tajawal,sans-serif;cursor:pointer;">إعادة إرسال الرمز</button>
       </div>
       <div class="switch-link"><button class="form-btn gray" onclick="cancelOtpFlow()">رجوع</button></div>
+    </div>
+
+    <!-- 🔑 اختيار كلمة السر (أول مرة · نسيت · تغيير) — ملف ١٥١ -->
+    <div id="pwSetScreen" style="display:none;" class="auth-page">
+      <div class="auth-badge">🔑</div>
+      <div class="auth-title" id="pwSetTitle">اختر كلمة السر</div>
+      <div class="auth-sub" id="pwSetSub">حتى تدخل بعدين برقمك وكلمة السر — بلا رمز كل مرة</div>
+      <div class="form-group"><label class="form-label">كلمة السر الجديدة</label>
+        <div class="ai-wrap"><span class="ai-ic">🔒</span><input class="form-input has-eye" type="password" id="pwNew" placeholder="6 أحرف أو أرقام على الأقل" autocomplete="new-password"><button type="button" class="ai-eye" onclick="pwEye(this)" aria-label="إظهار كلمة السر">👁️</button></div></div>
+      <div class="form-group"><label class="form-label">تأكيد كلمة السر</label>
+        <div class="ai-wrap"><span class="ai-ic">🔒</span><input class="form-input has-eye" type="password" id="pwNew2" placeholder="اكتبها مرة ثانية" autocomplete="new-password" onkeydown="if(event.key==='Enter')savePassword()"><button type="button" class="ai-eye" onclick="pwEye(this)" aria-label="إظهار كلمة السر">👁️</button></div></div>
+      <button class="form-btn" id="btnPwSave" onclick="savePassword()">حفظ</button>
+      <div id="pwSetResult"></div>
+      <div class="auth-hint">💡 احفظها بمكان أمين. إذا نسيتها: «نسيت كلمة السر» بشاشة الدخول ونرسلك رمز واتساب.</div>
+      <div style="text-align:center;margin-top:12px;"><button type="button" class="auth-link" id="btnPwSkip" onclick="pwSetSkip()" style="color:#64748B">لاحقاً</button></div>
     </div>
 
     <!-- HOME -->
@@ -3644,7 +3714,7 @@ function getCachedProduct(pid) {
 // ═══ CORE FUNCTIONS — LOADED FIRST ═══
 
 function showScreen(id) {
-  ['loadingScreen','regPhoneScreen','registerScreen','loginScreen','otpScreen','homeScreen'].forEach(s => {
+  ['loadingScreen','regPhoneScreen','registerScreen','loginScreen','otpScreen','pwSetScreen','homeScreen'].forEach(s => {
     const el = document.getElementById(s);
     if (el) el.style.display = 'none';
   });
@@ -4275,6 +4345,10 @@ async function submitRegistration() {
     }
     return;
   }
+  const _pw = _pwNorm(document.getElementById("regPassword").value);
+  const _pw2 = _pwNorm(document.getElementById("regPassword2").value);
+  if (_pw.length < 6) { result.innerHTML = '<div class="result error">❌ كلمة السر لازم تكون 6 أحرف أو أرقام على الأقل</div>'; return; }
+  if (_pw !== _pw2) { result.innerHTML = '<div class="result error">❌ كلمة السر وتأكيدها مو نفس الشي</div>'; return; }
   if (!shopPhotoFile) { result.innerHTML = '<div class="result error">❌ يرجى إرفاق صورة المحل</div>'; return; }
   if (!phone) { result.innerHTML = '<div class="result error">❌ انتهت الجلسة، ابدأ التسجيل من جديد</div>'; return; }
   btn.disabled = true;
@@ -4283,13 +4357,14 @@ async function submitRegistration() {
     const shopPhoto = await _uploadShopPhoto(shopPhotoFile);
     btn.innerText = "جاري الإرسال...";
     // الرقم انتحقق بالخطوة السابقة — السيرفر يتأكد من علامة التحقق قبل ما يقبل التسجيل
-    await sbFn('login', { action: 'register', payload: { name: name, shop: shop, phone: phone, address: address, province: province, shopPhoto: shopPhoto, district: district, districtId: districtId } });
+    await sbFn('login', { action: 'register', payload: { name: name, shop: shop, phone: phone, address: address, province: province, shopPhoto: shopPhoto, district: district, districtId: districtId, password: _pw } });
     localStorage.setItem('amwaj_phone', phone);
     // 🔔 اربط توكن الإشعارات برقمه من الآن، حتى إشعار "تمت الموافقة" يوصله فعلاً
     try { _syncFcmTokenToPhone(phone); } catch(e){}
     // 🔔 وهذي أنسب لحظة نطلب منه تفعيل الإشعارات: خلّص التسجيل وينتظر الموافقة — الإشعار هو الي راح يخبره
     setTimeout(function(){ try { setupWebPushNotifications(true); } catch(e){} }, 900);
-    result.innerHTML = '<div class="result success">✅ تم إرسال طلبك بنجاح!<br>سيتم مراجعته والرد عليك قريباً<br>📱 رقمك: <b>' + sanitize(phone) + '</b></div>';
+    result.innerHTML = '<div class="result success">✅ تم إرسال طلبك بنجاح!<br>سيتم مراجعته والرد عليك قريباً<br>📱 رقمك: <b>' + sanitize(phone) + '</b><br>🔑 بعد الموافقة تدخل برقمك وكلمة السر الي اخترتها</div>';
+    document.getElementById('regPassword').value = ''; document.getElementById('regPassword2').value = '';
     document.getElementById('regName').value = ''; document.getElementById('regShop').value = ''; document.getElementById('regAddress').value = '';
   } catch (e) {
     console.error(e);
@@ -4305,27 +4380,149 @@ async function submitRegistration() {
   btn.disabled = false; btn.innerText = "إرسال طلب التسجيل";
 }
 
+// 🔑 ملف ١٥١: الدخول برقم الهاتف + كلمة السر
+//   زبون قديم ما عنده كلمة سر ← رمز واتساب مرة وحدة، وبعدها يختار كلمة السر
+function _pwNorm(p){ return String(p || '').replace(/[٠-٩]/g, function(d){ return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); })
+  .replace(/[۰-۹]/g, function(d){ return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); }).trim(); }
+function pwEye(btn){
+  var i = btn.parentNode.querySelector('input'); if (!i) return;
+  var show = i.type === 'password'; i.type = show ? 'text' : 'password'; btn.textContent = show ? '🙈' : '👁️';
+}
+function _errText(e, fb){ var m = e && e.message; return (m && /[؀-ۿ]/.test(m)) ? m : (fb || 'حدث خطأ غير متوقع، حاول مرة أخرى'); }
+
 async function checkLogin() {
   const result = document.getElementById("loginResult");
+  const btn = document.getElementById("btnLogin");
   const phone = normalizePhone(document.getElementById("loginPhone").value);
+  const pw = _pwNorm((document.getElementById("loginPassword") || {}).value);
+  result.innerHTML = '';
   if (!phone || phone.length < 11) { result.innerHTML = '<div class="result error">❌ أدخل رقم هاتف صحيح</div>'; return; }
+  if (btn.disabled) return;
+  btn.disabled = true; btn.textContent = 'جاري الدخول...';
+  try {
+    const res = await sbRpc('app_login_password', { p_phone: phone, p_password: pw, p_is_app: _isNativeApp });
+    if (res && res.ok) { document.getElementById("loginPassword").value = ''; _finishLogin(res); return; }
+    if (res && res.needOtp) { _otp.after = 'setpw'; await startOtpFlow(phone, 'login'); return; }
+    result.innerHTML = '<div class="result error">❌ ' + sanitize((res && res.error) || 'تعذر الدخول') + '</div>';
+  } catch (e) {
+    result.innerHTML = '<div class="result error">❌ ' + _errText(e) + '</div>';
+  } finally { btn.disabled = false; btn.textContent = 'دخول'; }
+}
+
+// نسيت كلمة السر ← رمز واتساب ← كلمة سر جديدة
+async function forgotPassword() {
+  const result = document.getElementById("loginResult");
+  const phone = normalizePhone(document.getElementById("loginPhone").value);
+  result.innerHTML = '';
+  if (!phone || phone.length < 11) { result.innerHTML = '<div class="result error">❌ اكتب رقم هاتفك فوق أولاً، وبعدها اضغط «نسيت كلمة السر»</div>'; return; }
+  _otp.after = 'reset';
   await startOtpFlow(phone, 'login');
 }
+
+// ✅ بعد أي دخول ناجح (بكلمة السر أو بالرمز)
+function _finishLogin(user) {
+  localStorage.setItem('amwaj_user', JSON.stringify(user));
+  localStorage.setItem('amwaj_phone', user.phone);
+  if (user.adminToken) { localStorage.setItem('amwaj_admin_token', user.adminToken); } else { localStorage.removeItem('amwaj_admin_token'); }
+  const _sw = document.getElementById('homeWelcome'); if (_sw) _sw.textContent = 'مرحباً ' + String(user.name || '').split(' ')[0];
+  _goHomeAfterLogin();
+}
+function _goHomeAfterLogin() {
+  showScreen('homeScreen');
+  /* 🏷️ جاي من ملصق ضمان وما كان داخل؟ نكمّلها الآن */
+  setTimeout(function(){ try { warrantyFromUrl(); } catch(e){} }, 700);
+  setTimeout(function(){ try { updateFcmTokenAfterLogin(); } catch(e){} }, 1500);
+  setTimeout(function(){ try { checkAndShowBroadcast(); } catch(e){} }, 2500);
+}
+
+// 🔑 شاشة اختيار كلمة السر — mode: first (أول مرة) · reset (نسيت) · change (من حسابي)
+var _pwMode = 'first';
+function openPwSet(mode) {
+  _pwMode = mode || 'first';
+  var T = { first:  ['اختر كلمة السر', 'حتى تدخل بعدين برقمك وكلمة السر — بلا رمز كل مرة'],
+            reset:  ['كلمة سر جديدة', 'تم تأكيد رقمك ✅ — اختر كلمة سر جديدة'],
+            change: ['تغيير كلمة السر', 'اكتب كلمة السر الجديدة مرتين'] }[_pwMode] || [];
+  document.getElementById('pwSetTitle').textContent = T[0] || '';
+  document.getElementById('pwSetSub').textContent = T[1] || '';
+  document.getElementById('pwNew').value = ''; document.getElementById('pwNew2').value = '';
+  document.getElementById('pwSetResult').innerHTML = '';
+  document.getElementById('btnPwSkip').textContent = _pwMode === 'change' ? 'رجوع' : 'لاحقاً';
+  showScreen('pwSetScreen');
+}
+function openPwChange() { try { closeSheet('accountSheet'); } catch(e){} setTimeout(function(){ openPwSet('change'); }, 200); }
+function pwSetSkip() { if (_pwMode === 'change') showScreen('homeScreen'); else _goHomeAfterLogin(); }
+async function savePassword() {
+  var res = document.getElementById('pwSetResult');
+  var btn = document.getElementById('btnPwSave');
+  var a = _pwNorm(document.getElementById('pwNew').value), b = _pwNorm(document.getElementById('pwNew2').value);
+  res.innerHTML = '';
+  if (a.length < 6) { res.innerHTML = '<div class="result error">❌ كلمة السر لازم تكون 6 أحرف أو أرقام على الأقل</div>'; return; }
+  if (a !== b) { res.innerHTML = '<div class="result error">❌ كلمة السر وتأكيدها مو نفس الشي</div>'; return; }
+  if (btn.disabled) return;
+  btn.disabled = true; btn.textContent = 'جاري الحفظ...';
+  try {
+    var r = await sbRpc('app_password_set', { p_token: getCustomerToken(), p_password: a });
+    if (!r || !r.ok) { res.innerHTML = '<div class="result error">❌ ' + sanitize((r && r.error) || 'تعذر الحفظ') + '</div>'; return; }
+    res.innerHTML = '<div class="result success">✅ انحفظت كلمة السر — المرة الجاية ادخل برقمك وكلمة السر</div>';
+    setTimeout(function(){ if (_pwMode === 'change') showScreen('homeScreen'); else _goHomeAfterLogin(); }, 1300);
+  } catch (e) {
+    res.innerHTML = '<div class="result error">❌ ' + _errText(e) + '</div>';
+  } finally { btn.disabled = false; btn.textContent = 'حفظ'; }
+}
+
+// 🔢 مربعات الرمز — تكتب، تلصق، أو يعبّيها الموبايل تلقائياً
+function _otpBoxes() { return document.querySelectorAll('#otpBoxes input'); }
+function _otpSync() {
+  var v = ''; _otpBoxes().forEach(function(b){ v += b.value; b.classList.toggle('filled', !!b.value); });
+  document.getElementById('otpCode').value = v;
+  if (v.length === 6) verifyOtpCode();
+}
+function _otpBoxesClear() {
+  _otpBoxes().forEach(function(b){ b.value = ''; b.classList.remove('filled'); });
+  document.getElementById('otpCode').value = '';
+  setTimeout(function(){ var f = _otpBoxes()[0]; if (f) try { f.focus(); } catch(e){} }, 250);
+}
+(function _otpBoxesInit(){
+  var bx = _otpBoxes(); if (!bx.length) return;
+  bx.forEach(function(b, i){
+    b.addEventListener('input', function(){
+      var d = normalizeNumber(b.value).replace(/[^0-9]/g, '');
+      if (d.length > 1) {                       // لصق أو تعبئة تلقائية — نوزّعه على المربعات
+        for (var k = 0; k < d.length && i + k < 6; k++) bx[i + k].value = d[k];
+        var nx = Math.min(5, i + d.length); try { bx[nx].focus(); } catch(e){}
+      } else {
+        b.value = d;
+        if (d && i < 5) try { bx[i + 1].focus(); } catch(e){}
+      }
+      _otpSync();
+    });
+    b.addEventListener('keydown', function(e){
+      if (e.key === 'Backspace' && !b.value && i > 0) { bx[i - 1].value = ''; try { bx[i - 1].focus(); } catch(_){} _otpSync(); e.preventDefault(); }
+    });
+    b.addEventListener('focus', function(){ try { b.select(); } catch(e){} });
+  });
+})();
 
 // ==========================================
 // 🔐 OTP (رمز تحقق واتساب) — للتسجيل والدخول
 // ==========================================
-var _otp = { phone: '', purpose: '', pendingReg: null, cooldownTimer: null };
+var _otp = { phone: '', purpose: '', pendingReg: null, cooldownTimer: null, after: '' };
 
 async function startOtpFlow(phone, purpose, pendingReg) {
   _otp.phone = phone; _otp.purpose = purpose; _otp.pendingReg = pendingReg || null;
+  if (purpose === 'register') _otp.after = '';
   showScreen('loadingScreen');
   try {
     await sbFn('login', { action: 'request', phone: phone, purpose: purpose });
-    document.getElementById('otpCode').value = '';
     document.getElementById('otpResult').innerHTML = '';
-    document.getElementById('otpSubText').textContent = 'أدخل الرمز المرسل عبر واتساب إلى ' + phone;
+    var _ot = document.getElementById('otpTitle');
+    if (_ot) _ot.textContent = purpose === 'register' ? 'تأكيد رقم الهاتف'
+                           : _otp.after === 'reset' ? 'نسيت كلمة السر'
+                           : _otp.after === 'setpw' ? 'أول دخول بكلمة سر' : 'رمز الدخول';
+    document.getElementById('otpSubText').textContent = 'أدخل الرمز المرسل عبر واتساب إلى ' + phone +
+      (_otp.after === 'setpw' ? ' — وبعدها تختار كلمة السر' : '');
     showScreen('otpScreen');
+    _otpBoxesClear();
     startOtpCooldown();
   } catch (e) {
     const backScreen = purpose === 'register' ? 'regPhoneScreen' : 'loginScreen';
@@ -4372,6 +4569,7 @@ async function resendOtp() {
 
 function cancelOtpFlow() {
   if (_otp.cooldownTimer) clearInterval(_otp.cooldownTimer);
+  _otp.after = '';
   showScreen(_otp.purpose === 'register' ? 'regPhoneScreen' : 'loginScreen');
 }
 
@@ -4380,6 +4578,7 @@ async function verifyOtpCode() {
   var resultEl = document.getElementById('otpResult');
   if (!/^[0-9]{6}$/.test(code)) { resultEl.innerHTML = '<div class="result error">❌ أدخل رمز مكوّن من 6 أرقام</div>'; return; }
   var btn = document.getElementById('btnVerifyOtp');
+  if (btn.disabled) return;                   // المربعات تأكّد لوحدها — لا نرسل مرتين
   btn.disabled = true; btn.textContent = 'جاري التحقق...';
   try {
     const res = await sbFn('login', { action: 'verify', phone: _otp.phone, code: code, purpose: _otp.purpose, isApp: _isNativeApp });
@@ -4394,15 +4593,23 @@ async function verifyOtpCode() {
       showScreen('registerScreen');
     } else {
       const user = res;
-      localStorage.setItem('amwaj_user', JSON.stringify(user));
-      localStorage.setItem('amwaj_phone', user.phone);
-      if (user.adminToken) { localStorage.setItem('amwaj_admin_token', user.adminToken); } else { localStorage.removeItem('amwaj_admin_token'); }
-      const _sw = document.getElementById('homeWelcome'); if (_sw) _sw.textContent = 'مرحباً ' + user.name.split(' ')[0];
-      showScreen('homeScreen');
-      /* 🏷️ جاي من ملصق ضمان وما كان داخل؟ نكمّلها الآن */
-      setTimeout(function(){ try { warrantyFromUrl(); } catch(e){} }, 700);
-      setTimeout(function(){ try { updateFcmTokenAfterLogin(); } catch(e){} }, 1500);
-      setTimeout(function(){ try { checkAndShowBroadcast(); } catch(e){} }, 2500);
+      var _after = _otp.after; _otp.after = '';
+      if (_after !== 'reset') {
+        // 🔑 دخل بالرمز وما عنده كلمة سر؟ يختار وحدة هسه (مرة وحدة)
+        try {
+          var _st = await sbRpc('app_password_status', { p_token: user.customerToken });
+          if (_st && _st.ok && !_st.hasPassword) _after = 'setpw';
+        } catch(e) {}
+      }
+      if (_after === 'reset' || _after === 'setpw') {
+        localStorage.setItem('amwaj_user', JSON.stringify(user));
+        localStorage.setItem('amwaj_phone', user.phone);
+        if (user.adminToken) { localStorage.setItem('amwaj_admin_token', user.adminToken); } else { localStorage.removeItem('amwaj_admin_token'); }
+        const _sw = document.getElementById('homeWelcome'); if (_sw) _sw.textContent = 'مرحباً ' + String(user.name || '').split(' ')[0];
+        openPwSet(_after === 'reset' ? 'reset' : 'first');
+      } else {
+        _finishLogin(user);
+      }
     }
   } catch (e) {
     var _msg = e && e.message;
@@ -5246,7 +5453,7 @@ function handleSwipe() {
 // ═══ APP SHELL FUNCTIONS ═══
 
 function showScreen(id) {
-  ['loadingScreen','regPhoneScreen','registerScreen','loginScreen','otpScreen','homeScreen'].forEach(s => {
+  ['loadingScreen','regPhoneScreen','registerScreen','loginScreen','otpScreen','pwSetScreen','homeScreen'].forEach(s => {
     const el = document.getElementById(s);
     if (el) el.style.display = 'none';
   });
@@ -6858,7 +7065,7 @@ async function appBoot() {
         // ✅ تمت الموافقة، بس ما عنده جلسة دخول حقيقية (customerToken) بعد — نعرضله إشعار واضح بدل ما ننقله بصمت لصفحة الرئيسية بدون رمز دخول صالح
         document.getElementById('loginPhone').value = user.phone;
         document.getElementById('loginResult').innerHTML =
-          '<div class="result success" style="cursor:pointer;" onclick="checkLogin()">✅ تمت الموافقة على طلب التسجيل! اضغط هنا لتسجيل الدخول</div>';
+          '<div class="result success">✅ تمت الموافقة على طلب التسجيل! اكتب كلمة السر واضغط «دخول»</div>';
       } else if (user && user.status === 'pending') {
         document.getElementById('loginResult').innerHTML = '<div class="result pending">⏳ طلبك قيد المراجعة، انتظر موافقة الإدارة</div>';
         // 🔔 إعادة محاولة ربط توكن FCM برقمه كل ما يفتح التطبيق وهو لسا قيد المراجعة (تحسباً لو التوكن تأخر أول مرة)
@@ -8915,7 +9122,7 @@ function handleNotificationClickData(data) {
         if (_inp && _ph) _inp.value = _ph;
         showScreen('loginScreen');
         var _res = document.getElementById('loginResult');
-        if (_res) _res.innerHTML = '<div class="result success">✅ تمت الموافقة على طلبك! اضغط "دخول" للمتابعة</div>';
+        if (_res) _res.innerHTML = '<div class="result success">✅ تمت الموافقة على طلبك! اكتب كلمة السر واضغط «دخول»</div>';
       }
     } else if (type === 'broadcast') {
       // 📢 إعلان: القسم الي حدده، أو الرابط، أو يبقى بالرئيسية
@@ -9446,6 +9653,11 @@ function renderAccountSheet() {
         </div>
 
         <div class="profile-menu-group">
+          <button class="profile-menu-item" onclick="openPwChange()">
+            <div class="profile-menu-icon pm-icon-about">🔑</div>
+            <div class="profile-menu-label">تغيير كلمة السر</div>
+            <span class="profile-menu-arrow">‹</span>
+          </button>
           <button class="profile-menu-item" onclick="confirmLogout()">
             <div class="profile-menu-icon pm-icon-logout">🚪</div>
             <div class="profile-menu-label" style="color:var(--red);">تسجيل الخروج</div>
@@ -10045,7 +10257,7 @@ var _isNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && w
    يحسب نفسه أقدم مما هو، فلو انحدّث الرقم باللوحة يطلع طلب تحديث
    إجباري ما ينتهي أبداً ويقفّل الزبون برّا.
    يفحصه سكربت «فحص رقم النسخة.py» قبل كل بناء. */
-var APP_VERSION = '1.0.29';
+var APP_VERSION = '1.0.30';
 
 // 🔢 رقم الإصدار يظهر بس بالتطبيق المثبت (مو بالموقع، لأنه دايماً آخر نسخة وما يحتاج رقم)
 (function(){
