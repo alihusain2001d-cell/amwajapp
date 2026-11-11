@@ -11015,8 +11015,8 @@ function hxLoadBanners(){
 function hxRenderBanners(){
   var tr = document.getElementById('hxTrack'), dots = document.getElementById('hxDots');
   if (!tr) return;
-  // 🍎 بالآيفون: بنرات اللوحة بيها «أصلية» مكتوبة بالصورة (أبل 1.1.6) — نبين البنر المحايد بس
-  var list = IS_IOS_APP ? [] : (HX_BANNERS || []).filter(function(b){ return b && /^https:\/\//.test(String(b.img || '')); });
+  // بنرات اللوحة تطلع بالآيفون هم (قرار علي 2026-11-11) — إذا أبل رفضت على «أصلية» نرجّع: IS_IOS_APP ? [] :
+  var list = (HX_BANNERS || []).filter(function(b){ return b && /^https:\/\//.test(String(b.img || '')); });
   tr.innerHTML = list.length ? list.map(function(b, i){
     return '<div class="hx-slide" onclick="hxBannerGo(' + JSON.stringify(String(b.target || '')).replace(/"/g, '&quot;') + ')">' +
       '<img src="' + sanitize(b.img) + '" alt="" loading="' + (i ? 'lazy' : 'eager') + '"></div>';
