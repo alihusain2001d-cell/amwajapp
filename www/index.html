@@ -4022,7 +4022,15 @@ var IS_IOS_APP = (function(){
 })();
 function _showAppleNotices(){
   if (!IS_IOS_APP) return;
-  document.querySelectorAll('.apple-notice').forEach(function(el){ el.style.display = ''; });
+  document.querySelectorAll('.apple-notice').forEach(function(el){
+    // تنبيه الرئيسية يطلع بأول فتحة بس، وبعدها يختفي. تنبيه صفحة القطع يبقى دائماً.
+    if (el.classList.contains('an-home') && !el._shown) {
+      var seen = false; try { seen = localStorage.getItem('amwaj_an_home') === '1'; } catch(e){}
+      if (seen) return;
+      el._shown = 1; try { localStorage.setItem('amwaj_an_home', '1'); } catch(e){}
+    }
+    el.style.display = '';
+  });
   // «أصلية» بالبانر تتعارض ويا التنبيه (أبل 1.1.6) — بالآيفون نكتب وصف محايد
   var ht = document.getElementById('heroTitle');
   if (ht) ht.innerHTML = 'قطع غيار موبايل<br>لمحلات الصيانة';
