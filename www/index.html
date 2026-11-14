@@ -6658,6 +6658,29 @@ function openSheetCategory(catName){
 }
 
 
+/* 🔍 قاعدة البحث الوحدة لكل المربعات (علي 2026-11-14: «x7a» ما يطلع بهونر):
+   • كل كلمة تكتبها لازم تنلگى — بأي ترتيب («هونر x7a» = «x7a honor»)
+   • بلا فراغات وشرطات («X 7A» = «x7a» = «x-7a»)
+   • يدوّر بالاسم، والنوع، والماركة المسجّلة، والماركة الموحّدة (HONOR المسجّلة Huawei)، والاسم العربي */
+function _srchNorm(t){ return String(t || '').toLowerCase().replace(/[\s\-_/.()+,]+/g, ''); }
+function _srchMatch(p, q){
+  if (!p) return false;
+  var ar = ''; try { ar = arName(p.name) || ''; } catch(e){}
+  var bo = ''; try { bo = brandOf(p) || ''; } catch(e){}
+  var hay = [p.name, p.type, p.brand, bo, ar].join(' ').toLowerCase(), hs = _srchNorm(hay);
+  var words = String(q || '').toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) return false;
+  var all = _srchNorm(q);
+  if (all.length >= 2 && hs.indexOf(all) > -1) return true;
+  var hay2 = hay.replace(/[\-_/.()+,]+/g, '');
+  return words.every(function(w){
+    var w2 = w.replace(/[\-_/.()+,]+/g, ''); if (!w2) return true;
+    // كلمة بيها رقم: الرقم لازم يكون كامل — «20» ما تطلع بـ«2020» ولا «200»
+    if (/\d/.test(w2)) return new RegExp('(^|[^0-9])' + w2.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^0-9]|$)').test(hay2);
+    return hay.indexOf(w) > -1 || hay2.indexOf(w2) > -1;
+  });
+}
+
 function handleSheetSearch() {
   const q = document.getElementById('sheetSearch').value.trim().toLowerCase();
   const resultsDiv = document.getElementById('sheetResults');
@@ -6705,13 +6728,7 @@ function handleSheetSearch() {
       scopeLabel = ' ضمن ' + _lastBrandStr.split(',')[0];
     }
 
-    // «x7a» = «X 7A» = «X-7A» — نقارن بلا فراغات وشرطات هم
-    var _sq = function(t){ return String(t || '').toLowerCase().replace(/[\s\-_/.]+/g, ''); }, qq = _sq(q);
-    var filtered = scope.filter(function(p) {
-      var n = (p.name||'').toLowerCase();
-      return n.includes(q) || (p.brand||'').toLowerCase().includes(q) || brandOf(p).toLowerCase().includes(q) ||
-             (qq.length >= 2 && _sq(n + ' ' + (p.type || '')).includes(qq));
-    });
+    var filtered = scope.filter(function(p) { return _srchMatch(p, q); });   // 🔍 القاعدة الوحدة
     if (!filtered.length) {
       resultsDiv.innerHTML = '<div style="padding:20px;text-align:center;color:#64748B;">لا توجد نتائج لـ &quot;' + q + '&quot;' + scopeLabel + '</div>';
       return;
@@ -7716,23 +7733,18 @@ function doGlobalSheetSearch() {
     return;
   }
   // Search all data types
-  var allTypes = ['screens','batteries','chargeboards','flatcharging','backcover','housing','camera','tools'];
+  var allTypes = ['screens','batteries','chargeboards','flatcharging','backcover','housing','camera','lens','tools'];   // + العدسات
   var flatSubs = ['FLAT POWER','FLAT VOLUME','BUZZER','EAR SPEAKER','DOOR SIM','FINGERPRINT','OTHER'];
-  var results = [];
+  var results = [], _seen = {};
+  var _add = function(p, r){ var k = p.code || (p.name + '|' + p.price); if (_seen[k]) return; _seen[k] = 1; results.push(r); };
   allTypes.forEach(function(t) {
-    var data = getDataForType(t);
-    data.forEach(function(p) {
-      if ((p.name||'').toLowerCase().includes(q) || (p.brand||'').toLowerCase().includes(q)) {
-        results.push({p:p, type:t});
-      }
+    (getDataForType(t) || []).forEach(function(p) {
+      if (_srchMatch(p, q)) _add(p, {p:p, type:t});
     });
   });
   flatSubs.forEach(function(sub) {
-    var data = getFlatSubData(sub);
-    data.forEach(function(p) {
-      if ((p.name||'').toLowerCase().includes(q) || (p.brand||'').toLowerCase().includes(q)) {
-        results.push({p:p, type:'flatpower', sub:sub});
-      }
+    (getFlatSubData(sub) || []).forEach(function(p) {
+      if (_srchMatch(p, q)) _add(p, {p:p, type:'flatpower', sub:sub});
     });
   });
   if (!results.length) {
@@ -11972,9 +11984,7 @@ function handleAllProdSearch() {
 
   setTimeout(function() {
     var all = getAllDataOrdered();
-    var filtered = all.filter(function(p) {
-      return (p.name||'').toLowerCase().includes(q) || (p.brand||'').toLowerCase().includes(q);
-    });
+    var filtered = all.filter(function(p) { return _srchMatch(p, q); });   // 🔍 القاعدة الوحدة
     renderAllProdList(filtered, q);
   }, 100);
 }
