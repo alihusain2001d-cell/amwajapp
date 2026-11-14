@@ -3743,6 +3743,9 @@ input, textarea { -webkit-user-select:text !important; user-select:text !importa
 
 /* 👛 علامة المحفظة + صفحة «محفظتي» بنفس تصميم «حسابي» */
 .wl-ico{width:1.35em;height:1.15em;display:inline-block;vertical-align:-.22em;flex-shrink:0}
+/* 🔁 البحث وسّع لكل الماركات */
+.xb-note{font-size:13px;font-weight:700;color:#92400E;background:#FFFBEB;border:1px solid #FCD34D;border-radius:10px;padding:8px 10px;margin-bottom:10px}
+
 /* 🖼️ التصوير: «لگيناها عندنا» */
 #scanMatch:empty{display:none}
 #scanMatch{margin:4px 0 14px}
@@ -6663,22 +6666,40 @@ function openSheetCategory(catName){
    • بلا فراغات وشرطات («X 7A» = «x7a» = «x-7a»)
    • يدوّر بالاسم، والنوع، والماركة المسجّلة، والماركة الموحّدة (HONOR المسجّلة Huawei)، والاسم العربي */
 function _srchNorm(t){ return String(t || '').toLowerCase().replace(/[\s\-_/.()+,]+/g, ''); }
-function _srchMatch(p, q){
-  if (!p) return false;
+var _srchRe = { q: null, re: null };
+function _srchMatch(p, q){ return _srchScore(p, q) > 0; }
+/* 2 = العبارة كاملة متلاصقة · 1 = الكلمات موجودة متفرّقة · 0 = ما تطابق */
+function _srchScore(p, q){
+  if (!p) return 0;
   var ar = ''; try { ar = arName(p.name) || ''; } catch(e){}
   var bo = ''; try { bo = brandOf(p) || ''; } catch(e){}
   var hay = [p.name, p.type, p.brand, bo, ar].join(' ').toLowerCase(), hs = _srchNorm(hay);
   var words = String(q || '').toLowerCase().split(/\s+/).filter(Boolean);
-  if (!words.length) return false;
+  if (!words.length) return 0;
   var all = _srchNorm(q);
-  if (all.length >= 2 && hs.indexOf(all) > -1) return true;
+  if (all.length >= 2 && hs.indexOf(all) > -1) {
+    // العبارة متلاصقة بس بين حروفها مسموح فراغ/شرطة («x7a» = «X 7A»)، والرقم بالآخر لازم
+    // ينتهي هنا: «smart 7» تطابق «SMART 7 - 7HD» بس مو «SMART 70»
+    if (_srchRe.q !== all) {
+      var sep = '[\\s\\-_/.()+,]*';
+      _srchRe = { q: all, re: new RegExp(all.split('').map(function(ch){ return ch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join(sep) + (/\d$/.test(all) ? '(?![0-9])' : '')) };
+    }
+    if (_srchRe.re.test(hay)) return 2;
+  }
   var hay2 = hay.replace(/[\-_/.()+,]+/g, '');
   return words.every(function(w){
     var w2 = w.replace(/[\-_/.()+,]+/g, ''); if (!w2) return true;
     // كلمة بيها رقم: الرقم لازم يكون كامل — «20» ما تطلع بـ«2020» ولا «200»
     if (/\d/.test(w2)) return new RegExp('(^|[^0-9])' + w2.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^0-9]|$)').test(hay2);
     return hay.indexOf(w) > -1 || hay2.indexOf(w2) > -1;
-  });
+  }) ? 1 : 0;
+}
+// ترتيب ثابت: العبارة الكاملة أول، وبعدها نفس ترتيب القائمة
+function _srchSort(list, q){
+  return list.map(function(p, i){ return { p: p, i: i, s: _srchScore(p, q) }; })
+             .filter(function(x){ return x.s > 0; })
+             .sort(function(a, b){ return (b.s - a.s) || (a.i - b.i); })
+             .map(function(x){ return x.p; });
 }
 
 function handleSheetSearch() {
@@ -6723,12 +6744,21 @@ function handleSheetSearch() {
       scopeLabel = ' ضمن ' + _lastCatName;
     } else if (_lastBrandStr) {
       var _br = _lastBrandStr.split(',').map(function(b){ return b.trim().toLowerCase(); });
-      // 🏷️ نفس فلتر فتح الماركة (brandOf) — «HONOR X7A» مسجّلة Huawei بالكاتلوك بس تطلع تحت هونر (علي 2026-11-14)
-      scope = scope.filter(function(p){ return _br.includes(brandOf(p).toLowerCase()); });
+      // 🏷️ نفس فلتر فتح الماركة — الموحّدة («HONOR X7A» المسجّلة Huawei) + 🔗 المدموجة (smart 7 بشاشة تكنو)
+      scope = _brandScope(scope, _br);
       scopeLabel = ' ضمن ' + _lastBrandStr.split(',')[0];
     }
 
-    var filtered = scope.filter(function(p) { return _srchMatch(p, q); });   // 🔍 القاعدة الوحدة
+    var filtered = _srchSort(scope, q);   // 🔍 القاعدة الوحدة — العبارة الكاملة أول
+    // 🔁 داخل ماركة/قسم وما لگينا؟ ندوّر بكل الماركات بنفس القسم — حتى الزبون ما يطلع فاضي
+    if (!filtered.length && scopeLabel) {
+      var wide = _srchSort(data || [], q);
+      if (wide.length) {
+        resultsDiv.innerHTML = itemsBlock(wide.slice(0,50),
+          '<div class="xb-note">ما لگيناها' + sanitize(scopeLabel) + ' — بس هاي نتائج من كل الماركات:</div>');
+        return;
+      }
+    }
     if (!filtered.length) {
       resultsDiv.innerHTML = '<div style="padding:20px;text-align:center;color:#64748B;">لا توجد نتائج لـ &quot;' + q + '&quot;' + scopeLabel + '</div>';
       return;
@@ -6737,6 +6767,37 @@ function handleSheetSearch() {
       '<div style="font-size:13px;color:#64748B;margin-bottom:8px;">نتائج البحث' + scopeLabel + '</div>');
   }
   setTimeout(trySearch, 100);
+}
+
+/* 🔗 علي 2026-11-14: «عندي هواي دمج بالشاشات — smart 7 انفنكس = pop 7 تكنو. أدخل انفنكس
+   وأبحث smart 7 ما موجودة». فهرس الأجهزة (ملف ١٥٩) يعرف كل مادة تركب على أي أجهزة:
+   «TECNO SPARK 10 - … - SMART 7 - … - A60» ← Tecno + Infinix + Itel.
+   فالمادة تطلع تحت ماركتها، وتحت كل ماركة ثانية تركب عليها. */
+var _xbMap = null, _xbFor = null;
+function _itemBrands(p){
+  var own = brandOf(p);
+  if (!p || !p.code) return [own];
+  try { if (!_devxReady()) return [own]; } catch(e){ return [own]; }
+  if (_xbFor !== DEVX) {
+    _xbMap = {};
+    Object.keys(DEVX._by).forEach(function(k){
+      var b = k.slice(0, k.indexOf('|')); if (!b) return;
+      Object.keys(DEVX._by[k]).forEach(function(c){ (_xbMap[c] = _xbMap[c] || {})[b] = 1; });
+    });
+    _xbFor = DEVX;
+  }
+  var m = _xbMap[p.code], out = [own];
+  if (m) Object.keys(m).forEach(function(b){ if (out.indexOf(b) < 0) out.push(b); });
+  return out;
+}
+// المواد الي تخص هالماركات: ماركتها أول، وبعدها الي مسجّلة بماركة ثانية وتركب عليها
+function _brandScope(data, brs){
+  var own = [], cross = [];
+  (data || []).forEach(function(p){
+    if (brs.indexOf(brandOf(p).toLowerCase()) > -1) own.push(p);
+    else if (_itemBrands(p).some(function(b){ return brs.indexOf(b.toLowerCase()) > -1; })) cross.push(p);
+  });
+  return own.concat(cross);
 }
 
 function openSheetBrand(brandsStr) {
@@ -6761,7 +6822,7 @@ function openSheetBrand(brandsStr) {
       return;
     }
 
-    var filtered = (data||[]).filter(function(p) { return brands.includes(brandOf(p).toLowerCase()); });   // 🏷️ موحّدة (ITEL=Itel، هونر)
+    var filtered = _brandScope(data, brands);   // 🏷️ موحّدة (ITEL=Itel، هونر) + 🔗 المدموجة من الماركات الثانية
 
     if (!filtered.length && data && data.length > 0) {
       resultsDiv.innerHTML = '<div style="padding:20px;text-align:center;color:#64748B;">📭 لا توجد مواد لهذه الماركة</div>';
@@ -7747,6 +7808,8 @@ function doGlobalSheetSearch() {
       if (_srchMatch(p, q)) _add(p, {p:p, type:'flatpower', sub:sub});
     });
   });
+  results = results.map(function(r, i){ r._i = i; r._s = _srchScore(r.p, q); return r; })
+                   .sort(function(a, b){ return (b._s - a._s) || (a._i - b._i); });   // العبارة الكاملة أول
   if (!results.length) {
     resultsDiv.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;">لا توجد نتائج لـ &quot;' + sanitize(q) + '&quot;</div>';
     return;
@@ -11984,7 +12047,7 @@ function handleAllProdSearch() {
 
   setTimeout(function() {
     var all = getAllDataOrdered();
-    var filtered = all.filter(function(p) { return _srchMatch(p, q); });   // 🔍 القاعدة الوحدة
+    var filtered = _srchSort(all, q);   // 🔍 القاعدة الوحدة — العبارة الكاملة أول
     renderAllProdList(filtered, q);
   }, 100);
 }
