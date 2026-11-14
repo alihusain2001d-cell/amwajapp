@@ -6700,11 +6700,18 @@ function handleSheetSearch() {
       scopeLabel = ' ضمن ' + _lastCatName;
     } else if (_lastBrandStr) {
       var _br = _lastBrandStr.split(',').map(function(b){ return b.trim().toLowerCase(); });
-      scope = scope.filter(function(p){ return _br.includes((p.brand||'').toLowerCase()); });
+      // 🏷️ نفس فلتر فتح الماركة (brandOf) — «HONOR X7A» مسجّلة Huawei بالكاتلوك بس تطلع تحت هونر (علي 2026-11-14)
+      scope = scope.filter(function(p){ return _br.includes(brandOf(p).toLowerCase()); });
       scopeLabel = ' ضمن ' + _lastBrandStr.split(',')[0];
     }
 
-    var filtered = scope.filter(function(p) { return (p.name||'').toLowerCase().includes(q) || (p.brand||'').toLowerCase().includes(q); });
+    // «x7a» = «X 7A» = «X-7A» — نقارن بلا فراغات وشرطات هم
+    var _sq = function(t){ return String(t || '').toLowerCase().replace(/[\s\-_/.]+/g, ''); }, qq = _sq(q);
+    var filtered = scope.filter(function(p) {
+      var n = (p.name||'').toLowerCase();
+      return n.includes(q) || (p.brand||'').toLowerCase().includes(q) || brandOf(p).toLowerCase().includes(q) ||
+             (qq.length >= 2 && _sq(n + ' ' + (p.type || '')).includes(qq));
+    });
     if (!filtered.length) {
       resultsDiv.innerHTML = '<div style="padding:20px;text-align:center;color:#64748B;">لا توجد نتائج لـ &quot;' + q + '&quot;' + scopeLabel + '</div>';
       return;
